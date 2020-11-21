@@ -1,31 +1,126 @@
 package com.max.app;
 
-import com.max.app.util.NumberUtils;
+import com.max.app.concurrency.ReusableLatch;
+
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public final class Main {
 
+    private static final class XYCoordinates {
+        int x;
+        int y;
+
+        @Override
+        public String toString() {
+            return String.format("(%d; %d)", x, y);
+        }
+    }
+
+    private static final class StatHolder {
+        int count;
+    }
+
+
     public static void main(String[] args) throws Exception {
 
-        int[] numbers = {
-                12321,
-                22,
-                54745,
-                3,
-                0,
+        final int threadsCount = 10;
 
-                234532,
-                -22,
-                -2233,
-                23
-        };
+        StatHolder res = new StatHolder();
+        Lock lock = new ReentrantLock();
 
-        for (int singleNumber : numbers) {
-            System.out.printf("isPalindrome1(%d): %b, isPalindrome2(%d): %b %n",
-                              singleNumber, NumberUtils.isPalindrome1(singleNumber),
-                              singleNumber, NumberUtils.isPalindrome2(singleNumber));
+        final ReusableLatch allCompleted = new ReusableLatch(threadsCount);
+
+        for (int it = 0; it < 10; ++it) {
+            Thread[] threads = new Thread[threadsCount];
+            for (int i = 0; i < threadsCount; ++i) {
+                threads[i] = new Thread(() -> {
+                    try {
+                        for (int val = 0; val < 1_000_000; ++val) {
+                            lock.lock();
+                            try {
+                                res.count += 1;
+                            }
+                            finally {
+                                lock.unlock();
+                            }
+                        }
+//                        System.out.printf("Thread: %d started %n", Thread.currentThread().getId());
+                    }
+                    finally {
+                        allCompleted.countDown();
+//                        System.out.printf("Thread: %d completed %n", Thread.currentThread().getId());
+                    }
+                });
+            }
+
+            for (Thread singleThread : threads) {
+                singleThread.start();
+            }
+
+            allCompleted.await();
+
+            System.out.printf("Main completed, it: %d, value: %d%n", it, res.count);
         }
 
         System.out.printf("java version: %s%n", System.getProperty("java.version"));
+    }
+
+    /**
+     * 5.10. Generate uniform random numbers in range.
+     */
+    private static int randomInRange(int from, int to) {
+        checkArgument(from <= to, String.format("from > to: %d > %d", from, to));
+
+        // only 1 value possible
+        if (from == to) {
+            return from;
+        }
+
+        // 2 values possible
+        if (to - from == 1) {
+            return (randomBit() == 0) ? from : to;
+        }
+
+        final int upperBoundary = (to - from);
+        final int bitsCount = (int) log2(upperBoundary) + 1;
+
+        int randomValue = Integer.MAX_VALUE;
+
+        while (randomValue > upperBoundary) {
+            randomValue = generateRandomBits(bitsCount);
+        }
+
+        return from + randomValue;
+    }
+
+    private static double log2(double value) {
+        return Math.log10(value) / Math.log10(2.0);
+    }
+
+    private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
+
+    private static int randomBit() {
+        return RAND.nextBoolean() ? 1 : 0;
+    }
+
+    private static int generateRandomBits(int bitsCount) {
+        assert bitsCount <= Integer.SIZE;
+
+        int res = 0;
+
+        for (int i = 0; i < bitsCount; ++i) {
+            res = (res << 1) | randomBit();
+        }
+
+        return res;
+    }
+
+    private static void checkArgument(boolean exp, String errorMsg) {
+        if (!exp) {
+            throw new IllegalArgumentException(errorMsg);
+        }
     }
 
 
