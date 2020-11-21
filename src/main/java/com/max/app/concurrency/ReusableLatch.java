@@ -52,7 +52,11 @@ public class ReusableLatch {
             return (state & 0xFF_FF) | (waitCnt << 16);
         }
 
-        private static int updateReleaseCnt(int state, int cnt){
+        private static int decReleaseCnt(int state) {
+            return state - 1;
+        }
+
+        private static int updateReleaseCnt(int state, int cnt) {
             return (state & 0xFF_FF_00_00) | cnt;
         }
 
@@ -94,50 +98,18 @@ public class ReusableLatch {
         @Override
         protected boolean tryReleaseShared(int notUsed) {
             while (true) {
-                State state = new State(getState());
+                int oldState = getState();
 
                 // proceed only if 'releaseCnt' > 0, otherwise just spin
-                if (state.releaseCnt > 0) {
+                if (releaseCnt(oldState) > 0) {
 
-                    state.releaseCnt -= 1;
-                    int newState = state.getState();
+                    int newState = decReleaseCnt(oldState);
 
-                    if (compareAndSetState(state.getOldState(), newState)) {
-                        return (newState & 0xFF) == 0;
+                    if (compareAndSetState(oldState, newState)) {
+                        return releaseCnt(newState) == 0;
                     }
                 }
             }
         }
-    }
-
-    private static final class State {
-
-        final int oldState;
-
-        // lower 16 bits of state
-        int releaseCnt;
-
-        // higher 16 bits of state
-        int waitCnt;
-
-        State(int state) {
-            this.oldState = state;
-            this.releaseCnt = state & 0xFFFF;
-            this.waitCnt = state >>> 16;
-        }
-
-        public int getOldState() {
-            return oldState;
-        }
-
-        int getState() {
-            return (waitCnt << 16) | releaseCnt;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("waitCnt: %d, releaseCnt: %d", waitCnt, releaseCnt);
-        }
-
     }
 }
