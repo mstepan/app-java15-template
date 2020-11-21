@@ -32,7 +32,7 @@ public final class Main {
 
         final ReusableLatch allCompleted = new ReusableLatch(threadsCount);
 
-        for (int it = 0; it < 100; ++it) {
+        for (int it = 0; it < 10; ++it) {
             Thread[] threads = new Thread[threadsCount];
             for (int i = 0; i < threadsCount; ++i) {
                 threads[i] = new Thread(() -> {
@@ -46,11 +46,9 @@ public final class Main {
                                 lock.unlock();
                             }
                         }
-//                        System.out.printf("Thread: %d started %n", Thread.currentThread().getId());
                     }
                     finally {
                         allCompleted.countDown();
-//                        System.out.printf("Thread: %d completed %n", Thread.currentThread().getId());
                     }
                 });
             }
@@ -58,6 +56,15 @@ public final class Main {
             for (Thread singleThread : threads) {
                 singleThread.start();
             }
+
+//            for (int waitCnt = 0; waitCnt < 1; ++waitCnt) {
+//                Thread th = new Thread(() -> {
+//                    allCompleted.await();
+//                    System.out.printf("Waiter completed, res = %d%n", res.count);
+//                });
+//                th.setName("waiter-" + waitCnt);
+//                th.start();
+//            }
 
             allCompleted.await();
 

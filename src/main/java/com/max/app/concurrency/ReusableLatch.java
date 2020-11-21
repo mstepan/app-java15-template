@@ -43,28 +43,44 @@ public class ReusableLatch {
             }
         }
 
-        private static int incWaitCount(int state){
+        private static int incWaitCount(int state) {
             return state + (1 << 16);
+        }
+
+        private static int decWaitCnt(int state) {
+            int waitCnt = (state >>> 16) - 1;
+            return (state & 0xFF_FF) | (waitCnt << 16);
+        }
+
+        private static int updateReleaseCnt(int state, int cnt){
+            return (state & 0xFF_FF_00_00) | cnt;
+        }
+
+        private static int releaseCnt(int state) {
+            return state & 0xFF_FF;
+        }
+
+        private static int waitCnt(int state) {
+            return state >>> 16;
         }
 
         @Override
         protected int tryAcquireShared(int notUsed) {
-
-            State state = new State(getState());
+            int oldState = getState();
 
             // latch 'closed'
-            if (state.releaseCnt != 0) {
+            if (releaseCnt(oldState) != 0) {
                 return -1;
             }
 
             // latch 'open'
-            state.waitCnt -= 1;
+            int state = decWaitCnt(oldState);
 
             // last waiting thread should reset latch
-            if (state.waitCnt == 0) {
+            if (waitCnt(state) == 0) {
 
-                state.releaseCnt = totalCnt;
-                compareAndSetState(state.getOldState(), state.getState());
+                state = updateReleaseCnt(state, totalCnt);
+                compareAndSetState(oldState, state);
 
                 // '1' - allow acquire
                 return 1;
@@ -73,7 +89,6 @@ public class ReusableLatch {
                 // '0' won't allow any additional acquires, till latch not fully reset
                 return 0;
             }
-
         }
 
         @Override
