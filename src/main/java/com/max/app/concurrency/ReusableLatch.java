@@ -34,13 +34,17 @@ public class ReusableLatch {
             // increment 'waitCnt'
             while (true) {
 
-                State state = new State(getState());
-                state.waitCnt += 1;
+                int oldState = getState();
+                int newState = incWaitCount(oldState);
 
-                if (compareAndSetState(state.getOldState(), state.getState())) {
+                if (compareAndSetState(oldState, newState)) {
                     break;
                 }
             }
+        }
+
+        private static int incWaitCount(int state){
+            return state + (1 << 16);
         }
 
         @Override

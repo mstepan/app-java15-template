@@ -32,12 +32,12 @@ public final class Main {
 
         final ReusableLatch allCompleted = new ReusableLatch(threadsCount);
 
-        for (int it = 0; it < 10; ++it) {
+        for (int it = 0; it < 100; ++it) {
             Thread[] threads = new Thread[threadsCount];
             for (int i = 0; i < threadsCount; ++i) {
                 threads[i] = new Thread(() -> {
                     try {
-                        for (int val = 0; val < 1_000_000; ++val) {
+                        for (int val = 0; val < 1_000; ++val) {
                             lock.lock();
                             try {
                                 res.count += 1;
