@@ -30,7 +30,7 @@ public class ReusableLatch {
             setState(cnt);
         }
 
-        private void incWaitCounter(){
+        private void incWaitCounter() {
             // increment 'waitCnt'
             while (true) {
 
@@ -48,29 +48,28 @@ public class ReusableLatch {
 
             State state = new State(getState());
 
-            if (state.releaseCnt == 0) {
-
-                state.waitCnt -= 1;
-
-                // last wait thread should reset latch
-                if (state.waitCnt == 0) {
-
-//                    System.out.println("RESETTING LATCH");
-
-                    state.releaseCnt = totalCnt;
-
-                    compareAndSetState(state.getOldState(), state.getState());
-//                    System.out.println("tryAcquireShared called 0, waitCnt: " + state.waitCnt);
-                    return 1;
-                }
-                else {
-//                    System.out.println("tryAcquireShared called 1, waitCnt: " + state.waitCnt);
-                    return 0;
-                }
+            // latch 'closed'
+            if (state.releaseCnt != 0) {
+                return -1;
             }
 
-//            System.out.println("tryAcquireShared called -1, waitCnt: " + state.waitCnt);
-            return -1;
+            // latch 'open'
+            state.waitCnt -= 1;
+
+            // last waiting thread should reset latch
+            if (state.waitCnt == 0) {
+
+                state.releaseCnt = totalCnt;
+                compareAndSetState(state.getOldState(), state.getState());
+
+                // '1' - allow acquire
+                return 1;
+            }
+            else {
+                // '0' won't allow any additional acquires, till latch not fully reset
+                return 0;
+            }
+
         }
 
         @Override
@@ -85,7 +84,6 @@ public class ReusableLatch {
                     int newState = state.getState();
 
                     if (compareAndSetState(state.getOldState(), newState)) {
-//                        System.out.printf("HERE: %b%n", ((newState & 0xFF) == 0));
                         return (newState & 0xFF) == 0;
                     }
                 }
