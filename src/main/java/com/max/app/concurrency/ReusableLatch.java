@@ -70,28 +70,27 @@ public class ReusableLatch {
 
         @Override
         protected int tryAcquireShared(int notUsed) {
-            int oldState = getState();
 
             // latch 'closed'
-            if (releaseCnt(oldState) != 0) {
+            if (releaseCnt(getState()) != 0) {
                 return -1;
             }
 
             // latch 'open'
-            int state = decWaitCnt(oldState);
+            while (true) {
+                int state = getState();
+                int newState = decWaitCnt(state);
 
-            // last waiting thread should reset latch
-            if (waitCnt(state) == 0) {
+                boolean lastWaitingThread = waitCnt(newState) == 0;
 
-                state = updateReleaseCnt(state, totalCnt);
-                compareAndSetState(oldState, state);
+                if (lastWaitingThread) {
+                    // last waiting thread should reset latch
+                    newState = updateReleaseCnt(newState, totalCnt);
+                }
 
-                // '1' - allow acquire
-                return 1;
-            }
-            else {
-                // '0' won't allow any additional acquires, till latch not fully reset
-                return 0;
+                if (compareAndSetState(state, newState)) {
+                    return lastWaitingThread ? 1 : 0;
+                }
             }
         }
 
