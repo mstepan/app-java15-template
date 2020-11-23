@@ -25,7 +25,7 @@ public final class Main {
 
     public static void main(String[] args) throws Exception {
 
-        final int waitThreadsCount = 0;
+        final int waitThreadsCount = 1;
         final int threadsCount = 10;
 
         StatHolder res = new StatHolder();
@@ -61,7 +61,9 @@ public final class Main {
             for (int waitCnt = 0; waitCnt < waitThreadsCount; ++waitCnt) {
                 Thread th = new Thread(() -> {
                     allCompleted.await();
-                    System.out.printf("Waiter completed, res = %d%n", res.count);
+                    System.out.printf("[%s] completed, res = %d%n",
+                                      Thread.currentThread().getName(),
+                                      res.count);
                 });
                 th.setName("waiter-" + waitCnt);
                 th.start();
@@ -69,7 +71,8 @@ public final class Main {
 
             allCompleted.await();
 
-            System.out.printf("Main completed, it: %d, value: %d%n", it, res.count);
+            System.out.printf("[%s] completed, it: %d, value: %d%n",
+                              Thread.currentThread().getName(), it, res.count);
         }
 
         System.out.printf("java version: %s%n", System.getProperty("java.version"));
