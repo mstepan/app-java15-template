@@ -8,20 +8,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public final class Main {
 
-    private static final class XYCoordinates {
-        int x;
-        int y;
-
-        @Override
-        public String toString() {
-            return String.format("(%d; %d)", x, y);
-        }
-    }
-
     private static final class StatHolder {
         int count;
     }
-
 
     public static void main(String[] args) throws Exception {
 
