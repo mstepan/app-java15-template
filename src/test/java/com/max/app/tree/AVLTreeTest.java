@@ -43,4 +43,18 @@ public class AVLTreeTest {
         assertFalse(tree.contains(10));
         assertFalse(tree.contains(51));
     }
+
+    @Test
+    public void addLeftLeftRebalance() {
+        AVLTree<Integer> tree = new AVLTree<>();
+
+        tree.add(10);
+        tree.add(7);
+
+        tree.add(15);
+        tree.add(3);
+        tree.add(9);
+
+        tree.add(2);
+    }
 }

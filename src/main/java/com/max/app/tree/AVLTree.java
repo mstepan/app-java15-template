@@ -38,24 +38,74 @@ public final class AVLTree<T extends Comparable<T>> {
     /**
      * retrace path from leaf to root, checking AVL property for each node
      */
-    private void retrace(Node<T> cur) {
-
-        // update height and balance
-        updateHeightAndBalance(cur);
-
-        // check AVL properties
-
-    }
-
-    private void updateHeightAndBalance(Node<T> from) {
+    private void retrace(Node<T> from) {
 
         Node<T> cur = from;
 
         while (cur != null) {
-            cur.height = Math.max(cur.leftHeight(), cur.rightHeight()) + 1;
-            cur.balance = cur.leftHeight() - cur.rightHeight();
-            cur = cur.parent;
+
+            // update height and balance
+            cur.recalculateHeightAndBalance();
+
+            Node<T> parent = cur.parent;
+
+            // check AVL properties
+            if (cur.balance == 2) {
+
+                // 1.1. left-left case
+                if (cur.left.balance == 1) {
+                    System.out.println("LEFT-LEFT case");
+
+                    Node<T> newLeft = rotateRight(cur);
+
+                    if (parent == null) {
+                        root = newLeft;
+                        newLeft.parent = null;
+                    }
+                    else {
+                        parent.left = newLeft;
+                        updateParent(newLeft, parent);
+                    }
+                }
+                else {
+                    // 1.2. left-right case
+                    System.out.println("LEFT-RIGHT case");
+                }
+            }
+            else if (cur.balance == -2) {
+                //TODO:
+                // 2.1. right-right case
+                System.out.println("RIGHT-RIGHT case");
+
+                // 2.2. right-left case
+                System.out.println("RIGHT-LEFT case");
+            }
+
+            cur = parent;
         }
+    }
+
+    private Node<T> rotateRight(Node<T> node) {
+        Node<T> temp = node.left;
+
+        node.left = temp.right;
+        updateParent(temp.right, node);
+
+        temp.right = node;
+        updateParent(temp.right, temp);
+
+        node.recalculateHeightAndBalance();
+        temp.recalculateHeightAndBalance();
+
+        return temp;
+    }
+
+    private void updateParent(Node<T> node, Node<T> parent) {
+        if (node == null) {
+            return;
+        }
+
+        node.parent = parent;
     }
 
     public boolean contains(T value) {
@@ -119,9 +169,14 @@ public final class AVLTree<T extends Comparable<T>> {
             return right == null ? 0 : right.height;
         }
 
+        void recalculateHeightAndBalance() {
+            height = Math.max(leftHeight(), rightHeight()) + 1;
+            balance = leftHeight() - rightHeight();
+        }
+
         @Override
         public String toString() {
-            return String.valueOf(value);
+            return String.format("%s, h = %d, b = %d", value, height, balance);
         }
     }
 }
