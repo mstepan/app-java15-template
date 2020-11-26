@@ -3,7 +3,9 @@ package com.max.app.tree;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AVLTreeTest {
@@ -56,5 +58,16 @@ public class AVLTreeTest {
         tree.add(9);
 
         tree.add(2);
+
+        assertEquals(7, tree.root.getValue());
+        assertSame(null, tree.root.getParent());
+        assertEquals(3, tree.root.getHeight());
+        assertEquals(0, tree.root.getBalance());
+
+        AVLTree.Node<Integer> left = tree.root.getLeft();
+        assertEquals(3, left.getValue());
+
+        AVLTree.Node<Integer> right = tree.root.getRight();
+        assertEquals(10, right.getValue());
     }
 }

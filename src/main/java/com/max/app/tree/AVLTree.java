@@ -2,7 +2,7 @@ package com.max.app.tree;
 
 public final class AVLTree<T extends Comparable<T>> {
 
-    private Node<T> root;
+    Node<T> root;
 
     public boolean add(T value) {
 
@@ -55,49 +55,49 @@ public final class AVLTree<T extends Comparable<T>> {
                 // 1.1. left-left case
                 if (cur.left.balance == 1) {
                     System.out.println("LEFT-LEFT case");
-
-                    Node<T> newLeft = rotateRight(cur);
-
-                    if (parent == null) {
-                        root = newLeft;
-                        newLeft.parent = null;
-                    }
-                    else {
-                        parent.left = newLeft;
-                        updateParent(newLeft, parent);
-                    }
+                    rotateRight(cur, parent);
                 }
                 else {
                     // 1.2. left-right case
                     System.out.println("LEFT-RIGHT case");
+                    //TODO:
                 }
             }
             else if (cur.balance == -2) {
-                //TODO:
+
                 // 2.1. right-right case
                 System.out.println("RIGHT-RIGHT case");
+                //TODO:
 
                 // 2.2. right-left case
                 System.out.println("RIGHT-LEFT case");
+                //TODO:
             }
 
             cur = parent;
         }
     }
 
-    private Node<T> rotateRight(Node<T> node) {
-        Node<T> temp = node.left;
+    private void rotateRight(Node<T> cur, Node<T> parent) {
+        Node<T> mainNode = cur.left;
 
-        node.left = temp.right;
-        updateParent(temp.right, node);
+        cur.left = mainNode.right;
+        updateParent(mainNode.right, cur);
 
-        temp.right = node;
-        updateParent(temp.right, temp);
+        mainNode.right = cur;
+        updateParent(mainNode.right, mainNode);
 
-        node.recalculateHeightAndBalance();
-        temp.recalculateHeightAndBalance();
+        cur.recalculateHeightAndBalance();
+        mainNode.recalculateHeightAndBalance();
 
-        return temp;
+        if (parent == null) {
+            root = mainNode;
+            mainNode.parent = null;
+        }
+        else {
+            parent.left = mainNode;
+            updateParent(mainNode, parent);
+        }
     }
 
     private void updateParent(Node<T> node, Node<T> parent) {
@@ -143,7 +143,7 @@ public final class AVLTree<T extends Comparable<T>> {
         }
     }
 
-    private static final class Node<U> {
+    static final class Node<U> {
         private final U value;
         private Node<U> left;
         private Node<U> right;
@@ -167,6 +167,30 @@ public final class AVLTree<T extends Comparable<T>> {
 
         int rightHeight() {
             return right == null ? 0 : right.height;
+        }
+
+        U getValue() {
+            return value;
+        }
+
+        int getHeight() {
+            return height;
+        }
+
+        int getBalance() {
+            return balance;
+        }
+
+        Node<U> getParent() {
+            return parent;
+        }
+
+        Node<U> getLeft() {
+            return left;
+        }
+
+        Node<U> getRight() {
+            return right;
         }
 
         void recalculateHeightAndBalance() {
