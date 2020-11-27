@@ -20,7 +20,7 @@ public class AVLTreeTest {
     @RepeatedTest(100)
     public void addRandomValues() {
 
-        int[] arr = randomArray(1_000);
+        int[] arr = randomArray(10 + RAND.nextInt(1000));
 
         Set<Integer> expectedSet = new TreeSet<>();
         AVLTree<Integer> actualSet = new AVLTree<>();
