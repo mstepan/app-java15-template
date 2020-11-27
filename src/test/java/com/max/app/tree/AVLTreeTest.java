@@ -4,6 +4,7 @@ package com.max.app.tree;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ThreadLocalRandom;
@@ -18,14 +19,24 @@ public class AVLTreeTest {
     private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
 
     @Test
-//    @Disabled("Not working yet")
+    public void test1(){
+        int[] arr = {78, 30, 83, 52, 9, 92, 27, 5, 34, 2, 62, 36, 49, 58, 38};
+
+        AVLTree<Integer> avlSet = new AVLTree<>();
+
+        for(int value : arr){
+            avlSet.add(value);
+        }
+
+        assertTrue(avlSet.contains(52));
+    }
+
+    @Test
+    @Disabled
     public void addRandomValues() {
         AVLTree<Integer> tree = new AVLTree<>();
 
-        int[] arr = new int[100];
-        for (int i = 0; i < arr.length; ++i) {
-            arr[i] = RAND.nextInt();
-        }
+        int[] arr = randomArrayOfPositiveValues(20);
 
         Set<Integer> treeSet = new TreeSet<>();
         AVLTree<Integer> avlSet = new AVLTree<>();
@@ -33,8 +44,27 @@ public class AVLTreeTest {
         for (int value : arr) {
             boolean wasAdded1 = treeSet.add(value);
             boolean wasAdded2 = avlSet.add(value);
-            assertEquals(wasAdded1, wasAdded2);
+            assertEquals(wasAdded1, wasAdded2, "value = " + value);
         }
+
+        for (int value : arr) {
+            assertTrue(avlSet.contains(value), ("value not found: " + value));
+        }
+
+        for (int it = 0; it < 1_000; ++it) {
+            int randValue = -200 + RAND.nextInt(100);
+            assertFalse(avlSet.contains(randValue));
+        }
+    }
+
+    private static int[] randomArrayOfPositiveValues(int length) {
+        int[] arr = new int[length];
+        for (int i = 0; i < arr.length; ++i) {
+            arr[i] = RAND.nextInt(100);
+        }
+
+        System.out.println(Arrays.toString(arr));
+        return arr;
     }
 
 

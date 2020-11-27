@@ -30,6 +30,9 @@ public final class AVLTree<T extends Comparable<T>> {
             node.right = newNode;
         }
 
+        if( ((Integer)value) == 59 ){
+            int x = 133;
+        }
         retrace(newNode);
 
         return true;
@@ -59,7 +62,7 @@ public final class AVLTree<T extends Comparable<T>> {
                 else if (cur.left.balance == -1) {
                     // 1.2. left-right case
 //                    System.out.println("LEFT-RIGHT case");
-                    rotateLeft(cur.left, cur, true);
+                    rotateLeft(cur.left, cur);
                     rotateRight(cur, parent, true);
                 }
                 else {
@@ -72,13 +75,13 @@ public final class AVLTree<T extends Comparable<T>> {
                 if (cur.right.balance == -1) {
                     // 2.1. right-right case
 //                    System.out.println("RIGHT-RIGHT case");
-                    rotateLeft(cur, parent, false);
+                    rotateLeft(cur, parent);
                 }
                 else if (cur.right.balance == 1) {
                     // 2.2. right-left case
 //                    System.out.println("RIGHT-LEFT case");
                     rotateRight(cur.right, cur, false);
-                    rotateLeft(cur, parent, false);
+                    rotateLeft(cur, parent);
                 }
                 else {
                     throw new IllegalStateException(String.format("Undefined rotation case, not RIGHT-RIGHT or RIGHT-LEFT: " +
@@ -91,7 +94,7 @@ public final class AVLTree<T extends Comparable<T>> {
         }
     }
 
-    private void rotateLeft(Node<T> cur, Node<T> parent, boolean baseRotationLeft) {
+    private void rotateLeft(Node<T> cur, Node<T> parent) {
 
         Node<T> mainNode = cur.right;
 
@@ -108,12 +111,13 @@ public final class AVLTree<T extends Comparable<T>> {
             mainNode.parent = null;
         }
         else {
-            if (baseRotationLeft) {
+            if( parent.left == cur){
                 parent.left = mainNode;
             }
             else {
                 parent.right = mainNode;
             }
+
             updateParent(mainNode, parent);
             parent.recalculateHeightAndBalance();
         }
