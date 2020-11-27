@@ -29,10 +29,6 @@ public final class AVLTree<T extends Comparable<T>> {
         else {
             node.right = newNode;
         }
-
-        if( ((Integer)value) == 59 ){
-            int x = 133;
-        }
         retrace(newNode);
 
         return true;
@@ -56,31 +52,27 @@ public final class AVLTree<T extends Comparable<T>> {
             if (cur.balance == 2) {
                 // 1.1. left-left case
                 if (cur.left.balance == 1) {
-//                    System.out.println("LEFT-LEFT case");
-                    rotateRight(cur, parent, true);
+                    rotateRight(cur, parent);
                 }
                 else if (cur.left.balance == -1) {
                     // 1.2. left-right case
-//                    System.out.println("LEFT-RIGHT case");
                     rotateLeft(cur.left, cur);
-                    rotateRight(cur, parent, true);
+                    rotateRight(cur, parent);
                 }
                 else {
                     throw new IllegalStateException(String.format("Undefined rotation case, not LEFT-LEFT or LEFT-RIGHT: " +
-                                                            "cur %s, cur.left: %s, cur.right: %s",
-                                                    cur, cur.left, cur.right));
+                                                                          "cur %s, cur.left: %s, cur.right: %s",
+                                                                  cur, cur.left, cur.right));
                 }
             }
             else if (cur.balance == -2) {
                 if (cur.right.balance == -1) {
                     // 2.1. right-right case
-//                    System.out.println("RIGHT-RIGHT case");
                     rotateLeft(cur, parent);
                 }
                 else if (cur.right.balance == 1) {
                     // 2.2. right-left case
-//                    System.out.println("RIGHT-LEFT case");
-                    rotateRight(cur.right, cur, false);
+                    rotateRight(cur.right, cur);
                     rotateLeft(cur, parent);
                 }
                 else {
@@ -111,7 +103,7 @@ public final class AVLTree<T extends Comparable<T>> {
             mainNode.parent = null;
         }
         else {
-            if( parent.left == cur){
+            if (parent.left == cur) {
                 parent.left = mainNode;
             }
             else {
@@ -124,7 +116,7 @@ public final class AVLTree<T extends Comparable<T>> {
 
     }
 
-    private void rotateRight(Node<T> cur, Node<T> parent, boolean baseRotationLeft) {
+    private void rotateRight(Node<T> cur, Node<T> parent) {
         Node<T> mainNode = cur.left;
 
         cur.left = mainNode.right;
@@ -141,7 +133,7 @@ public final class AVLTree<T extends Comparable<T>> {
             mainNode.parent = null;
         }
         else {
-            if (baseRotationLeft) {
+            if (parent.left == cur) {
                 parent.left = mainNode;
             }
             else {

@@ -1,10 +1,9 @@
 package com.max.app.tree;
 
 
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ThreadLocalRandom;
@@ -18,25 +17,10 @@ public class AVLTreeTest {
 
     private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
 
-    @Test
-    public void test1(){
-        int[] arr = {78, 30, 83, 52, 9, 92, 27, 5, 34, 2, 62, 36, 49, 58, 38};
-
-        AVLTree<Integer> avlSet = new AVLTree<>();
-
-        for(int value : arr){
-            avlSet.add(value);
-        }
-
-        assertTrue(avlSet.contains(52));
-    }
-
-    @Test
-    @Disabled
+    @RepeatedTest(100)
     public void addRandomValues() {
-        AVLTree<Integer> tree = new AVLTree<>();
 
-        int[] arr = randomArrayOfPositiveValues(20);
+        int[] arr = randomArrayOfPositiveValues(1_000);
 
         Set<Integer> treeSet = new TreeSet<>();
         AVLTree<Integer> avlSet = new AVLTree<>();
@@ -62,11 +46,8 @@ public class AVLTreeTest {
         for (int i = 0; i < arr.length; ++i) {
             arr[i] = RAND.nextInt(100);
         }
-
-        System.out.println(Arrays.toString(arr));
         return arr;
     }
-
 
     @Test
     public void addWithDifferentRotationsAndContains() {
