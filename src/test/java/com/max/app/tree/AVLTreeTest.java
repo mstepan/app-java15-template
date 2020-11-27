@@ -20,31 +20,31 @@ public class AVLTreeTest {
     @RepeatedTest(100)
     public void addRandomValues() {
 
-        int[] arr = randomArrayOfPositiveValues(1_000);
+        int[] arr = randomArray(1_000);
 
-        Set<Integer> treeSet = new TreeSet<>();
-        AVLTree<Integer> avlSet = new AVLTree<>();
+        Set<Integer> expectedSet = new TreeSet<>();
+        AVLTree<Integer> actualSet = new AVLTree<>();
 
         for (int value : arr) {
-            boolean wasAdded1 = treeSet.add(value);
-            boolean wasAdded2 = avlSet.add(value);
+            boolean wasAdded1 = expectedSet.add(value);
+            boolean wasAdded2 = actualSet.add(value);
             assertEquals(wasAdded1, wasAdded2, "value = " + value);
         }
 
         for (int value : arr) {
-            assertTrue(avlSet.contains(value), ("value not found: " + value));
+            assertTrue(actualSet.contains(value), ("value not found: " + value));
         }
 
         for (int it = 0; it < 1_000; ++it) {
-            int randValue = -200 + RAND.nextInt(100);
-            assertFalse(avlSet.contains(randValue));
+            int randValue = RAND.nextInt();
+            assertEquals(expectedSet.contains(randValue), actualSet.contains(randValue));
         }
     }
 
-    private static int[] randomArrayOfPositiveValues(int length) {
+    private static int[] randomArray(int length) {
         int[] arr = new int[length];
         for (int i = 0; i < arr.length; ++i) {
-            arr[i] = RAND.nextInt(100);
+            arr[i] = RAND.nextInt();
         }
         return arr;
     }
