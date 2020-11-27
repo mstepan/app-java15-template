@@ -1,7 +1,12 @@
 package com.max.app.tree;
 
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -10,8 +15,31 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AVLTreeTest {
 
+    private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
+
     @Test
-    public void addAndContains() {
+//    @Disabled("Not working yet")
+    public void addRandomValues() {
+        AVLTree<Integer> tree = new AVLTree<>();
+
+        int[] arr = new int[100];
+        for (int i = 0; i < arr.length; ++i) {
+            arr[i] = RAND.nextInt();
+        }
+
+        Set<Integer> treeSet = new TreeSet<>();
+        AVLTree<Integer> avlSet = new AVLTree<>();
+
+        for (int value : arr) {
+            boolean wasAdded1 = treeSet.add(value);
+            boolean wasAdded2 = avlSet.add(value);
+            assertEquals(wasAdded1, wasAdded2);
+        }
+    }
+
+
+    @Test
+    public void addWithDifferentRotationsAndContains() {
         AVLTree<Integer> tree = new AVLTree<>();
 
         assertTrue(tree.add(5));
@@ -19,10 +47,10 @@ public class AVLTreeTest {
 
         assertTrue(tree.add(12));
         assertTrue(tree.contains(12));
-
         assertTrue(tree.add(8));
         assertTrue(tree.add(3));
         assertTrue(tree.add(20));
+
         assertTrue(tree.add(4));
         assertTrue(tree.add(2));
         assertTrue(tree.add(1));
@@ -44,6 +72,7 @@ public class AVLTreeTest {
         assertFalse(tree.contains(6));
         assertFalse(tree.contains(10));
         assertFalse(tree.contains(51));
+        assertFalse(tree.contains(133));
     }
 
     @Test
