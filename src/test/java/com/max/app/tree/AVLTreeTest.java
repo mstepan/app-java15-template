@@ -139,9 +139,6 @@ public class AVLTreeTest {
     @Test
     public void containsForNullReturnFalse() {
         AVLTree<Integer> tree = new AVLTree<>();
-
-        assertFalse(tree.contains(null));
-
         tree.add(5);
         tree.add(8);
         tree.add(17);
@@ -214,8 +211,6 @@ public class AVLTreeTest {
     @Test
     public void checkSize() {
         Set<Integer> set = new AVLTree<>();
-
-        assertEquals(0, set.size());
 
         set.add(5);
         assertEquals(1, set.size());
