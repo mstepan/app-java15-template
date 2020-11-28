@@ -1,6 +1,5 @@
 package com.max.app.tree;
 
-
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
@@ -77,7 +76,7 @@ public class AVLTreeTest {
 
         int[] arr = randomArray(10 + RAND.nextInt(1000));
 
-        Set<Integer> set = new AVLTree<>();
+        AVLTree<Integer> set = new AVLTree<>();
         for (int value : arr) {
             set.add(value);
         }
@@ -86,6 +85,10 @@ public class AVLTreeTest {
         Arrays.sort(arrCopy);
 
         checkIterator(arrCopy, set.iterator());
+    }
+
+    private static double log2(int value) {
+        return Math.log10(value) / Math.log10(2.0);
     }
 
     private static void checkIterator(int[] expected, Iterator<Integer> it) {
@@ -103,13 +106,19 @@ public class AVLTreeTest {
         int[] arr = randomArray(10 + RAND.nextInt(1000));
 
         Set<Integer> expectedSet = new TreeSet<>();
-        Set<Integer> actualSet = new AVLTree<>();
+        AVLTree<Integer> actualSet = new AVLTree<>();
 
         for (int value : arr) {
             boolean wasAdded1 = expectedSet.add(value);
             boolean wasAdded2 = actualSet.add(value);
             assertEquals(wasAdded1, wasAdded2, "value = " + value);
         }
+
+        int actualHeight = actualSet.calculateHeight();
+        int maxPossibleAvlHeight = (int) Math.ceil(1.44 * log2(arr.length));
+
+        assertTrue(actualHeight <= maxPossibleAvlHeight, "Abnormal AVL tree height detected, maxPossible: " +
+                maxPossibleAvlHeight + ", but found: " + actualHeight);
 
         for (int value : arr) {
             assertTrue(actualSet.contains(value), ("value not found: " + value));
@@ -198,7 +207,6 @@ public class AVLTreeTest {
 
         assertEquals(7, tree.root.getValue());
         assertSame(null, tree.root.getParent());
-        assertEquals(3, tree.root.getHeight());
         assertEquals(0, tree.root.getBalance());
 
         AVLTree.Node<Integer> left = tree.root.getLeft();

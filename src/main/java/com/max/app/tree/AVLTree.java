@@ -14,6 +14,21 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
     private int size;
     private int modCount;
 
+    /**
+     * Max possible AVL tree height = 1.44 * log2(N)
+     */
+    public int calculateHeight() {
+        return calculateHeightRec(root);
+    }
+
+    private int calculateHeightRec(Node<T> cur) {
+        if (cur == null) {
+            return 0;
+        }
+
+        return 1 + Math.max(calculateHeightRec(cur.left), calculateHeightRec(cur.right));
+    }
+
     @Override
     public boolean add(T value) {
 
@@ -88,14 +103,24 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
     /**
      * retrace path from leaf to root, checking AVL property for each node
      */
-    private void retrace(Node<T> from) {
+    private void retrace(Node<T> leaf) {
 
-        Node<T> cur = from;
+        Node<T> prev = leaf;
+        Node<T> cur = leaf.parent;
 
         while (cur != null) {
 
-            // update height and balance
-            cur.recalculateHeightAndBalance();
+            if (cur.left == prev) {
+                cur.balance += 1;
+            }
+            else {
+                cur.balance -= 1;
+            }
+
+            if (cur.balance == 0) {
+                // height hasn't changed, so we can break the cycle here
+                break;
+            }
 
             Node<T> parent = cur.parent;
 
@@ -104,11 +129,13 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
                 // 1.1. left-left case
                 if (cur.left.balance == 1) {
                     rotateRight(cur, parent);
+                    break;
                 }
                 else if (cur.left.balance == -1) {
                     // 1.2. left-right case
                     rotateLeft(cur.left, cur);
                     rotateRight(cur, parent);
+                    break;
                 }
                 else {
                     throw new IllegalStateException(String.format("Undefined rotation case, not LEFT-LEFT or LEFT-RIGHT: " +
@@ -120,11 +147,13 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
                 if (cur.right.balance == -1) {
                     // 2.1. right-right case
                     rotateLeft(cur, parent);
+                    break;
                 }
                 else if (cur.right.balance == 1) {
                     // 2.2. right-left case
                     rotateRight(cur.right, cur);
                     rotateLeft(cur, parent);
+                    break;
                 }
                 else {
                     throw new IllegalStateException(String.format("Undefined rotation case, not RIGHT-RIGHT or RIGHT-LEFT: " +
@@ -133,6 +162,7 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
                 }
             }
 
+            prev = cur;
             cur = parent;
         }
     }
@@ -143,11 +173,11 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
 
         cur.right = mainNode.left;
         updateParent(mainNode.left, cur);
-        cur.recalculateHeightAndBalance();
+        cur.balance = 0;
 
         mainNode.left = cur;
         updateParent(cur, mainNode);
-        mainNode.recalculateHeightAndBalance();
+        mainNode.balance = 0;
 
         if (parent == null) {
             root = mainNode;
@@ -162,9 +192,7 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
             }
 
             updateParent(mainNode, parent);
-            parent.recalculateHeightAndBalance();
         }
-
     }
 
     private void rotateRight(Node<T> cur, Node<T> parent) {
@@ -172,12 +200,11 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
 
         cur.left = mainNode.right;
         updateParent(mainNode.right, cur);
+        cur.balance = 0;
 
         mainNode.right = cur;
         updateParent(mainNode.right, mainNode);
-
-        cur.recalculateHeightAndBalance();
-        mainNode.recalculateHeightAndBalance();
+        mainNode.balance = 0;
 
         if (parent == null) {
             root = mainNode;
@@ -191,7 +218,6 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
                 parent.right = mainNode;
             }
             updateParent(mainNode, parent);
-            parent.recalculateHeightAndBalance();
         }
     }
 
@@ -235,8 +261,9 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
         private Node<U> left;
         private Node<U> right;
         private Node<U> parent;
-        private int height = 1;
-        private int balance = 0;
+
+        // value can be in range [-2; 2].
+        private byte balance = 0;
 
         static <U> Node<U> withParent(U value, Node<U> parent) {
             Node<U> node = new Node<>(value);
@@ -247,21 +274,8 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
         Node(U value) {
             this.value = value;
         }
-
-        int leftHeight() {
-            return left == null ? 0 : left.height;
-        }
-
-        int rightHeight() {
-            return right == null ? 0 : right.height;
-        }
-
         U getValue() {
             return value;
-        }
-
-        int getHeight() {
-            return height;
         }
 
         int getBalance() {
@@ -280,14 +294,9 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
             return right;
         }
 
-        void recalculateHeightAndBalance() {
-            height = Math.max(leftHeight(), rightHeight()) + 1;
-            balance = leftHeight() - rightHeight();
-        }
-
         @Override
         public String toString() {
-            return String.format("%s, h = %d, b = %d", value, height, balance);
+            return String.format("%s, b = %d", value, balance);
         }
     }
 
