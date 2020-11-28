@@ -4,6 +4,8 @@ package com.max.app.tree;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ThreadLocalRandom;
@@ -17,13 +19,51 @@ public class AVLTreeTest {
 
     private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
 
+    @Test
+    public void iterateOverSet() {
+        Set<Integer> set = new AVLTree<>();
+        set.add(8);
+        set.add(5);
+        set.add(20);
+        set.add(6);
+        set.add(15);
+        set.add(33);
+
+        checkIterator(new int[]{5, 6, 8, 15, 20, 33}, set.iterator());
+    }
+
+    @RepeatedTest(100)
+    public void iterateOverRandomData() {
+
+        int[] arr = randomArray(10 + RAND.nextInt(1000));
+
+        Set<Integer> set = new AVLTree<>();
+        for (int value : arr) {
+            set.add(value);
+        }
+
+        int[] arrCopy = Arrays.copyOf(arr, arr.length);
+        Arrays.sort(arrCopy);
+
+        checkIterator(arrCopy, set.iterator());
+    }
+
+    private static void checkIterator(int[] expected, Iterator<Integer> it) {
+        for (int expectedValue : expected) {
+            assertTrue(it.hasNext(), "Iterator ended earlier than expected");
+            assertEquals(expectedValue, it.next(), "Incorrect value detected during iteration");
+        }
+
+        assertFalse(it.hasNext());
+    }
+
     @RepeatedTest(100)
     public void addRandomValues() {
 
         int[] arr = randomArray(10 + RAND.nextInt(1000));
 
         Set<Integer> expectedSet = new TreeSet<>();
-        AVLTree<Integer> actualSet = new AVLTree<>();
+        Set<Integer> actualSet = new AVLTree<>();
 
         for (int value : arr) {
             boolean wasAdded1 = expectedSet.add(value);

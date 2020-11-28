@@ -1,15 +1,27 @@
 package com.max.app.tree;
 
-public final class AVLTree<T extends Comparable<T>> {
+import java.util.AbstractSet;
+import java.util.ArrayDeque;
+import java.util.ConcurrentModificationException;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
 
     Node<T> root;
 
+    private int size;
+    private int modCount;
+
+    @Override
     public boolean add(T value) {
 
         checkNotNull(value, "Can't add NULL value");
 
         if (root == null) {
             root = new Node<>(value);
+            incSize();
             return true;
         }
 
@@ -30,8 +42,36 @@ public final class AVLTree<T extends Comparable<T>> {
             node.right = newNode;
         }
         retrace(newNode);
+        incSize();
 
         return true;
+    }
+
+    private void incSize() {
+        ++modCount;
+        ++size;
+    }
+
+    @Override
+    public boolean contains(Object obj) {
+
+        T value = (T) obj;
+
+        checkNotNull(value, "Can't search for NULL value");
+
+        Node<T> foundNode = findNodeOrParent(value);
+
+        return foundNode.value.compareTo(value) == 0;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new InOrderIterator();
+    }
+
+    @Override
+    public int size() {
+        return size;
     }
 
     /**
@@ -152,14 +192,6 @@ public final class AVLTree<T extends Comparable<T>> {
         node.parent = parent;
     }
 
-    public boolean contains(T value) {
-        checkNotNull(value, "Can't search for NULL value");
-
-        Node<T> foundNode = findNodeOrParent(value);
-
-        return foundNode.value.compareTo(value) == 0;
-    }
-
     private Node<T> findNodeOrParent(T value) {
 
         Node<T> parent = root;
@@ -245,6 +277,65 @@ public final class AVLTree<T extends Comparable<T>> {
         @Override
         public String toString() {
             return String.format("%s, h = %d, b = %d", value, height, balance);
+        }
+    }
+
+    private final class InOrderIterator implements Iterator<T> {
+
+        private final int modCountSnapshot;
+
+        private Node<T> cur;
+        private final Deque<Node<T>> stack;
+
+        public InOrderIterator() {
+            this.modCountSnapshot = modCount;
+            this.cur = root;
+            this.stack = new ArrayDeque<>();
+        }
+
+        @Override
+        public boolean hasNext() {
+            return !(stack.isEmpty() && cur == null);
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException("Iterator is EMPTY");
+            }
+
+            Node<T> retNode = moveCurrent();
+
+            return retNode.value;
+        }
+
+        private Node<T> moveCurrent() {
+
+            if (modCountSnapshot != AVLTree.this.modCount) {
+                throw new ConcurrentModificationException("AVLTree was modified during traversal");
+            }
+
+            if (cur == null) {
+                cur = stack.pop();
+                Node<T> res = cur;
+                cur = cur.right;
+                return res;
+            }
+
+            if (cur.left == null) {
+                Node<T> res = cur;
+                cur = cur.right;
+                return res;
+            }
+
+            while (cur.left != null) {
+                stack.push(cur);
+                cur = cur.left;
+            }
+
+            Node<T> res = cur;
+            cur = cur.right;
+            return res;
         }
     }
 }
