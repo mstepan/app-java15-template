@@ -5,7 +5,9 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ThreadLocalRandom;
@@ -13,11 +15,49 @@ import java.util.concurrent.ThreadLocalRandom;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AVLTreeTest {
 
     private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
+
+    @Test
+    public void exhaustedIteratorThrowsException() {
+        Set<Integer> set = new AVLTree<>();
+        set.add(8);
+        set.add(5);
+        set.add(15);
+
+        Iterator<Integer> it = set.iterator();
+
+        assertTrue(it.hasNext());
+        assertEquals(5, it.next());
+        assertTrue(it.hasNext());
+        assertEquals(8, it.next());
+        assertTrue(it.hasNext());
+        assertEquals(15, it.next());
+
+        assertFalse(it.hasNext());
+        assertThrows(NoSuchElementException.class, it::next);
+    }
+
+    @Test
+    public void iteratorThrowsExceptionIfModifiedDuringTraversal() {
+        Set<Integer> set = new AVLTree<>();
+        set.add(8);
+        set.add(5);
+        set.add(15);
+
+        Iterator<Integer> it = set.iterator();
+
+        assertTrue(it.hasNext());
+        assertEquals(5, it.next());
+
+        set.add(33);
+        assertTrue(it.hasNext());
+        assertThrows(ConcurrentModificationException.class, it::next);
+    }
 
     @Test
     public void iterateOverSet() {
@@ -90,6 +130,26 @@ public class AVLTreeTest {
     }
 
     @Test
+    public void addNullThrowsException() {
+        AVLTree<Integer> tree = new AVLTree<>();
+        assertThrows(IllegalArgumentException.class, () -> tree.add(null));
+        assertEquals(0, tree.size());
+    }
+
+    @Test
+    public void containsForNullReturnFalse() {
+        AVLTree<Integer> tree = new AVLTree<>();
+
+        assertFalse(tree.contains(null));
+
+        tree.add(5);
+        tree.add(8);
+        tree.add(17);
+
+        assertFalse(tree.contains(null));
+    }
+
+    @Test
     public void addWithDifferentRotationsAndContains() {
         AVLTree<Integer> tree = new AVLTree<>();
 
@@ -149,5 +209,25 @@ public class AVLTreeTest {
 
         AVLTree.Node<Integer> right = tree.root.getRight();
         assertEquals(10, right.getValue());
+    }
+
+    @Test
+    public void checkSize() {
+        Set<Integer> set = new AVLTree<>();
+
+        assertEquals(0, set.size());
+
+        set.add(5);
+        assertEquals(1, set.size());
+
+        set.add(8);
+        set.add(13);
+        set.add(55);
+        assertEquals(4, set.size());
+
+        // add duplicate values should not change set size
+        set.add(13);
+        set.add(55);
+        assertEquals(4, set.size());
     }
 }
