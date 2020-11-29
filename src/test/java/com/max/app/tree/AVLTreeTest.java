@@ -114,11 +114,14 @@ public class AVLTreeTest {
             assertEquals(wasAdded1, wasAdded2, "value = " + value);
         }
 
-        int actualHeight = actualSet.calculateHeight();
+        AVLTree.HeightAndBalance actualValue = actualSet.calculateHeight();
         int maxPossibleAvlHeight = (int) Math.ceil(1.44 * log2(arr.length));
 
-        assertTrue(actualHeight <= maxPossibleAvlHeight, "Abnormal AVL tree height detected, maxPossible: " +
-                maxPossibleAvlHeight + ", but found: " + actualHeight);
+        assertTrue(actualValue.height <= maxPossibleAvlHeight, "Abnormal AVL tree height detected, maxPossible: " +
+                maxPossibleAvlHeight + ", but found: " + actualValue.height);
+
+//        assertTrue(actualValue.maxBalance < 2, "max balance value is too high: " + actualValue.maxBalance);
+//        assertTrue(actualValue.minBalance > -2, "min balance value is too small: " + actualValue.minBalance);
 
         for (int value : arr) {
             assertTrue(actualSet.contains(value), ("value not found: " + value));
