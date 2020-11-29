@@ -96,25 +96,14 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
 
     @Override
     public boolean contains(Object obj) {
-        if (obj == null) {
-            return false;
-        }
 
-        T value = cast(obj);
+        T value = (T) obj;
+
+        checkNotNull(value, "Can't search for NULL value");
 
         Node<T> foundNode = findNodeOrParent(value);
 
         return foundNode.value.compareTo(value) == 0;
-    }
-
-    @SuppressWarnings("unchecked")
-    private T cast(Object obj) {
-        try {
-            return (T) obj;
-        }
-        catch (ClassCastException castEx) {
-            throw new IllegalArgumentException("Incorrect type detected, " + obj.getClass());
-        }
     }
 
     @Override
