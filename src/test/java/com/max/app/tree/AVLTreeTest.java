@@ -120,6 +120,7 @@ public class AVLTreeTest {
         assertTrue(actualValue.height <= maxPossibleAvlHeight, "Abnormal AVL tree height detected, maxPossible: " +
                 maxPossibleAvlHeight + ", but found: " + actualValue.height);
 
+        //TODO: this works for ACLTree2, but failed for AVLTRee
 //        assertTrue(actualValue.maxBalance < 2, "max balance value is too high: " + actualValue.maxBalance);
 //        assertTrue(actualValue.minBalance > -2, "min balance value is too small: " + actualValue.minBalance);
 
