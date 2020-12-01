@@ -20,32 +20,32 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
     /**
      * Max possible AVL tree height = 1.44 * log2(N)
      */
-    public HeightAndBalance calculateHeight() {
+    public TreeProperties calculateTreeProperties() {
         return calculateStatsRec(root);
     }
 
-    static class HeightAndBalance {
+    static class TreeProperties {
 
-        private static final HeightAndBalance EMPTY = new HeightAndBalance(0, 0, 0);
+        private static final TreeProperties EMPTY = new TreeProperties(0, 0, 0);
 
         int maxBalance;
         int minBalance;
         int height;
 
-        HeightAndBalance(int maxBalance, int minBalance, int height) {
+        TreeProperties(int maxBalance, int minBalance, int height) {
             this.maxBalance = maxBalance;
             this.minBalance = minBalance;
             this.height = height;
         }
     }
 
-    private HeightAndBalance calculateStatsRec(Node<T> cur) {
+    private TreeProperties calculateStatsRec(Node<T> cur) {
         if (cur == null) {
-            return HeightAndBalance.EMPTY;
+            return TreeProperties.EMPTY;
         }
 
-        HeightAndBalance leftValue = calculateStatsRec(cur.left);
-        HeightAndBalance rightValue = calculateStatsRec(cur.right);
+        TreeProperties leftValue = calculateStatsRec(cur.left);
+        TreeProperties rightValue = calculateStatsRec(cur.right);
 
         int curHeight = 1 + Math.max(leftValue.height, rightValue.height);
         int curBalance = leftValue.height - rightValue.height;
@@ -53,7 +53,7 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
         int maxBalanceSoFar = max(curBalance, leftValue.maxBalance, rightValue.maxBalance);
         int minBalanceSoFar = min(curBalance, leftValue.minBalance, rightValue.minBalance);
 
-        return new HeightAndBalance(maxBalanceSoFar, minBalanceSoFar, curHeight);
+        return new TreeProperties(maxBalanceSoFar, minBalanceSoFar, curHeight);
     }
 
     private static int max(int first, int second, int third) {
@@ -92,22 +92,10 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
             node.right = newNode;
         }
 
-        recalculateHeight(newNode);
-
         retrace(newNode);
         incSize();
 
         return true;
-    }
-
-    private void recalculateHeight(Node<T> leftNode) {
-
-        Node<T> cur = leftNode.parent;
-
-        while (cur != null) {
-            cur.recalculateHeight();
-            cur = cur.parent;
-        }
     }
 
     @Override
@@ -195,10 +183,11 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
 
         cur.right = mainNode.left;
         updateParent(mainNode.left, cur);
-        cur.recalculateHeight();
 
         mainNode.left = cur;
         updateParent(cur, mainNode);
+
+        cur.recalculateHeight();
         mainNode.recalculateHeight();
 
         if (parent == null) {
