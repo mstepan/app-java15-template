@@ -87,9 +87,7 @@ public class AVLTreeTest {
         checkIterator(arrCopy, set.iterator());
     }
 
-    private static double log2(int value) {
-        return Math.log10(value) / Math.log10(2.0);
-    }
+
 
     private static void checkIterator(int[] expected, Iterator<Integer> it) {
         for (int expectedValue : expected) {
@@ -120,9 +118,8 @@ public class AVLTreeTest {
         assertTrue(actualValue.height <= maxPossibleAvlHeight, "Abnormal AVL tree height detected, maxPossible: " +
                 maxPossibleAvlHeight + ", but found: " + actualValue.height);
 
-        //TODO: this works for ACLTree2, but failed for AVLTRee
-//        assertTrue(actualValue.maxBalance < 2, "max balance value is too high: " + actualValue.maxBalance);
-//        assertTrue(actualValue.minBalance > -2, "min balance value is too small: " + actualValue.minBalance);
+        assertTrue(actualValue.maxBalance < 2, "max balance value is too high: " + actualValue.maxBalance);
+        assertTrue(actualValue.minBalance > -2, "min balance value is too small: " + actualValue.minBalance);
 
         for (int value : arr) {
             assertTrue(actualSet.contains(value), ("value not found: " + value));
@@ -132,6 +129,10 @@ public class AVLTreeTest {
             int randValue = RAND.nextInt();
             assertEquals(expectedSet.contains(randValue), actualSet.contains(randValue));
         }
+    }
+
+    private static double log2(int value) {
+        return Math.log10(value) / Math.log10(2.0);
     }
 
     private static int[] randomArray(int length) {
@@ -211,7 +212,6 @@ public class AVLTreeTest {
 
         assertEquals(7, tree.root.getValue());
         assertSame(null, tree.root.getParent());
-        assertEquals(0, tree.root.getBalance());
 
         AVLTree.Node<Integer> left = tree.root.getLeft();
         assertEquals(3, left.getValue());

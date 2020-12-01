@@ -2,6 +2,9 @@ package com.max.app;
 
 import com.max.app.concurrency.ReusableLatch;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -14,55 +17,61 @@ public final class Main {
 
     public static void main(String[] args) throws Exception {
 
-        final int waitThreadsCount = 1;
-        final int threadsCount = 10;
+        Map<Object, String> map = new HashMap<>();
+        map.put(null, "null is here");
 
-        StatHolder res = new StatHolder();
-        Lock lock = new ReentrantLock();
+//        System.out.println(map.size());
+//        System.out.println(map.get(null));
 
-        final ReusableLatch allCompleted = new ReusableLatch(threadsCount);
-
-        for (int it = 0; it < 10; ++it) {
-            Thread[] threads = new Thread[threadsCount];
-            for (int i = 0; i < threadsCount; ++i) {
-                threads[i] = new Thread(() -> {
-                    try {
-                        for (int val = 0; val < 1_000; ++val) {
-                            lock.lock();
-                            try {
-                                res.count += 1;
-                            }
-                            finally {
-                                lock.unlock();
-                            }
-                        }
-                    }
-                    finally {
-                        allCompleted.countDown();
-                    }
-                });
-            }
-
-            for (Thread singleThread : threads) {
-                singleThread.start();
-            }
-
-            for (int waitCnt = 0; waitCnt < waitThreadsCount; ++waitCnt) {
-                Thread th = new Thread(() -> {
-                    allCompleted.await();
-                    System.out.printf("[%s] completed, res = %d%n",
-                                      Thread.currentThread().getName(),
-                                      res.count);
-                });
-                th.setName("waiter-" + waitCnt);
-                th.start();
-            }
-
-            allCompleted.await();
-
-            System.out.printf("[%s] completed, it: %d, value: %d%n",
-                              Thread.currentThread().getName(), it, res.count);
-        }
+//        final int waitThreadsCount = 1;
+//        final int threadsCount = 10;
+//
+//        StatHolder res = new StatHolder();
+//        Lock lock = new ReentrantLock();
+//
+//        final ReusableLatch allCompleted = new ReusableLatch(threadsCount);
+//
+//        for (int it = 0; it < 10; ++it) {
+//            Thread[] threads = new Thread[threadsCount];
+//            for (int i = 0; i < threadsCount; ++i) {
+//                threads[i] = new Thread(() -> {
+//                    try {
+//                        for (int val = 0; val < 1_000; ++val) {
+//                            lock.lock();
+//                            try {
+//                                res.count += 1;
+//                            }
+//                            finally {
+//                                lock.unlock();
+//                            }
+//                        }
+//                    }
+//                    finally {
+//                        allCompleted.countDown();
+//                    }
+//                });
+//            }
+//
+//            for (Thread singleThread : threads) {
+//                singleThread.start();
+//            }
+//
+//            for (int waitCnt = 0; waitCnt < waitThreadsCount; ++waitCnt) {
+//                Thread th = new Thread(() -> {
+//                    allCompleted.await();
+//                    System.out.printf("[%s] completed, res = %d%n",
+//                                      Thread.currentThread().getName(),
+//                                      res.count);
+//                });
+//                th.setName("waiter-" + waitCnt);
+//                th.start();
+//            }
+//
+//            allCompleted.await();
+//
+//            System.out.printf("[%s] completed, it: %d, value: %d%n",
+//                              Thread.currentThread().getName(), it, res.count);
+//        }
 
         System.out.printf("java version: %s%n", System.getProperty("java.version"));
     }
