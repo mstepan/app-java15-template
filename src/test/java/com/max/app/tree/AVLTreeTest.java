@@ -88,7 +88,6 @@ public class AVLTreeTest {
     }
 
 
-
     private static void checkIterator(int[] expected, Iterator<Integer> it) {
         for (int expectedValue : expected) {
             assertTrue(it.hasNext(), "Iterator ended earlier than expected");
@@ -123,16 +122,20 @@ public class AVLTreeTest {
             assertEquals(expectedSet.contains(randValue), actualSet.contains(randValue));
         }
     }
-    // Check all AVL tree properties: height & max/min balance.
-    private static void assertAVLTreePropertiesCorrect(AVLTree<Integer> actualTree){
 
-        AVLTree.TreeProperties actualValue = actualTree.calculateTreeProperties();
+    // Check all AVL tree properties: height & max/min balance.
+    private static void assertAVLTreePropertiesCorrect(AVLTree<Integer> actualTree) {
+
+        PropertiesVisitor<Integer> visitor = new PropertiesVisitor<>();
+
+        actualTree.visitPostOrder(visitor);
+
         int maxPossibleAvlHeight = (int) Math.ceil(1.44 * log2(actualTree.size()));
 
-        assertTrue(actualValue.height <= maxPossibleAvlHeight, "Abnormal AVL tree height detected, maxPossible: " +
-                maxPossibleAvlHeight + ", but found: " + actualValue.height);
-        assertTrue(actualValue.maxBalance < 2, "max balance value is too high: " + actualValue.maxBalance);
-        assertTrue(actualValue.minBalance > -2, "min balance value is too small: " + actualValue.minBalance);
+        assertTrue(visitor.height() <= maxPossibleAvlHeight, "Abnormal AVL tree height detected, maxPossible: " +
+                maxPossibleAvlHeight + ", but found: " + visitor.height());
+        assertTrue(visitor.maxBalance() < 2, "max balance value is too high: " + visitor.maxBalance());
+        assertTrue(visitor.minBalance() > -2, "min balance value is too small: " + visitor.minBalance());
     }
 
     private static double log2(int value) {

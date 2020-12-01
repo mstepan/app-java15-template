@@ -18,50 +18,26 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
     private int modCount;
 
     /**
-     * Max possible AVL tree height = 1.44 * log2(N)
+     * visit in post-order fashion: left-right-parent
      */
-    public TreeProperties calculateTreeProperties() {
-        return calculateStatsRec(root);
+    public void visitPostOrder(TreeVisitor<T> visitor) {
+        visitPostOrderRec(root, visitor);
     }
 
-    static class TreeProperties {
-
-        private static final TreeProperties EMPTY = new TreeProperties(0, 0, 0);
-
-        int maxBalance;
-        int minBalance;
-        int height;
-
-        TreeProperties(int maxBalance, int minBalance, int height) {
-            this.maxBalance = maxBalance;
-            this.minBalance = minBalance;
-            this.height = height;
-        }
-    }
-
-    private TreeProperties calculateStatsRec(Node<T> cur) {
+    private void visitPostOrderRec(Node<T> cur, TreeVisitor<T> visitor) {
         if (cur == null) {
-            return TreeProperties.EMPTY;
+            return;
         }
 
-        TreeProperties leftValue = calculateStatsRec(cur.left);
-        TreeProperties rightValue = calculateStatsRec(cur.right);
+        if (cur.left != null) {
+            visitPostOrderRec(cur.left, visitor);
+        }
 
-        int curHeight = 1 + Math.max(leftValue.height, rightValue.height);
-        int curBalance = leftValue.height - rightValue.height;
+        if (cur.right != null) {
+            visitPostOrderRec(cur.right, visitor);
+        }
 
-        int maxBalanceSoFar = max(curBalance, leftValue.maxBalance, rightValue.maxBalance);
-        int minBalanceSoFar = min(curBalance, leftValue.minBalance, rightValue.minBalance);
-
-        return new TreeProperties(maxBalanceSoFar, minBalanceSoFar, curHeight);
-    }
-
-    private static int max(int first, int second, int third) {
-        return Math.max(Math.max(first, second), third);
-    }
-
-    private static int min(int first, int second, int third) {
-        return Math.min(Math.min(first, second), third);
+        visitor.visitNode(cur);
     }
 
     @Override
@@ -316,6 +292,14 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
 
         public int getHeight() {
             return height;
+        }
+
+        public int leftHeight() {
+            return left == null ? 0 : left.getHeight();
+        }
+
+        public int rightHeight() {
+            return right == null ? 0 : right.getHeight();
         }
 
         Node<U> getParent() {
