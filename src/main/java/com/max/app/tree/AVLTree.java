@@ -8,7 +8,10 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * AVLTree implementation with only balance tracking without height.
+ * AVLTree implementation with height tracking.
+ * For each node balance factor lies in range [-1...1].
+ * <p>
+ * balance factor = left child height - right child height
  */
 public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
 
@@ -16,29 +19,6 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
 
     private int size;
     private int modCount;
-
-    /**
-     * visit in post-order fashion: left-right-parent
-     */
-    public void visitPostOrder(TreeVisitor<T> visitor) {
-        visitPostOrderRec(root, visitor);
-    }
-
-    private void visitPostOrderRec(Node<T> cur, TreeVisitor<T> visitor) {
-        if (cur == null) {
-            return;
-        }
-
-        if (cur.left != null) {
-            visitPostOrderRec(cur.left, visitor);
-        }
-
-        if (cur.right != null) {
-            visitPostOrderRec(cur.right, visitor);
-        }
-
-        visitor.visitNode(cur);
-    }
 
     @Override
     public boolean add(T value) {
@@ -183,7 +163,6 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
         updateParentLink(parent, mainNode, cur);
     }
 
-
     private void updateParentLink(Node<T> parent, Node<T> movedUpNode, Node<T> cur) {
         if (parent == null) {
             root = movedUpNode;
@@ -200,7 +179,6 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
             parent.recalculateHeight();
         }
     }
-
 
     private void updateParent(Node<T> node, Node<T> parent) {
         if (node == null) {
@@ -237,6 +215,32 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
         }
     }
 
+    // Visitor part
+
+    /**
+     * visit in post-order fashion: left-right-parent
+     */
+    public void visitPostOrder(TreeVisitor<T> visitor) {
+        visitPostOrderRec(root, visitor);
+    }
+
+    private void visitPostOrderRec(Node<T> cur, TreeVisitor<T> visitor) {
+        if (cur == null) {
+            return;
+        }
+
+        if (cur.left != null) {
+            visitPostOrderRec(cur.left, visitor);
+        }
+
+        if (cur.right != null) {
+            visitPostOrderRec(cur.right, visitor);
+        }
+
+        visitor.visitNode(cur);
+    }
+
+    // Node part
     static final class Node<U> {
 
         private final U value;
@@ -309,6 +313,7 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
         }
     }
 
+    // Iterator part
     private final class InOrderIterator implements Iterator<T> {
 
         private final int modCountSnapshot;
