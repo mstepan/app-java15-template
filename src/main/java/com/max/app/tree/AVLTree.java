@@ -12,7 +12,7 @@ import java.util.NoSuchElementException;
  */
 public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
 
-    Node<T> root;
+    private Node<T> root;
 
     private int size;
     private int modCount;
@@ -154,34 +154,18 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
     }
 
     private void rotateLeft(Node<T> cur, Node<T> parent) {
+        Node<T> movedUpNode = cur.right;
 
-        Node<T> mainNode = cur.right;
+        cur.right = movedUpNode.left;
+        updateParent(movedUpNode.left, cur);
 
-        cur.right = mainNode.left;
-        updateParent(mainNode.left, cur);
-
-        mainNode.left = cur;
-        updateParent(cur, mainNode);
+        movedUpNode.left = cur;
+        updateParent(cur, movedUpNode);
 
         cur.recalculateHeight();
-        mainNode.recalculateHeight();
+        movedUpNode.recalculateHeight();
 
-        if (parent == null) {
-            root = mainNode;
-            mainNode.parent = null;
-        }
-        else {
-            if (parent.left == cur) {
-                parent.left = mainNode;
-            }
-            else {
-                parent.right = mainNode;
-            }
-
-            updateParent(mainNode, parent);
-            parent.recalculateHeight();
-        }
-
+        updateParentLink(parent, movedUpNode, cur);
     }
 
     private void rotateRight(Node<T> cur, Node<T> parent) {
@@ -196,18 +180,23 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
         cur.recalculateHeight();
         mainNode.recalculateHeight();
 
+        updateParentLink(parent, mainNode, cur);
+    }
+
+
+    private void updateParentLink(Node<T> parent, Node<T> movedUpNode, Node<T> cur) {
         if (parent == null) {
-            root = mainNode;
-            mainNode.parent = null;
+            root = movedUpNode;
+            movedUpNode.parent = null;
         }
         else {
             if (parent.left == cur) {
-                parent.left = mainNode;
+                parent.left = movedUpNode;
             }
             else {
-                parent.right = mainNode;
+                parent.right = movedUpNode;
             }
-            updateParent(mainNode, parent);
+            updateParent(movedUpNode, parent);
             parent.recalculateHeight();
         }
     }

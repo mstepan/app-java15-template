@@ -13,89 +13,12 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AVLTreeTest {
 
     private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
-
-    @Test
-    public void exhaustedIteratorThrowsException() {
-        Set<Integer> set = new AVLTree<>();
-        set.add(8);
-        set.add(5);
-        set.add(15);
-
-        Iterator<Integer> it = set.iterator();
-
-        assertTrue(it.hasNext());
-        assertEquals(5, it.next());
-        assertTrue(it.hasNext());
-        assertEquals(8, it.next());
-        assertTrue(it.hasNext());
-        assertEquals(15, it.next());
-
-        assertFalse(it.hasNext());
-        assertThrows(NoSuchElementException.class, it::next);
-    }
-
-    @Test
-    public void iteratorThrowsExceptionIfModifiedDuringTraversal() {
-        Set<Integer> set = new AVLTree<>();
-        set.add(8);
-        set.add(5);
-        set.add(15);
-
-        Iterator<Integer> it = set.iterator();
-
-        assertTrue(it.hasNext());
-        assertEquals(5, it.next());
-
-        set.add(33);
-        assertTrue(it.hasNext());
-        assertThrows(ConcurrentModificationException.class, it::next);
-    }
-
-    @Test
-    public void iterateOverSet() {
-        Set<Integer> set = new AVLTree<>();
-        set.add(8);
-        set.add(5);
-        set.add(20);
-        set.add(6);
-        set.add(15);
-        set.add(33);
-
-        checkIterator(new int[]{5, 6, 8, 15, 20, 33}, set.iterator());
-    }
-
-    @RepeatedTest(100)
-    public void iterateOverRandomData() {
-
-        int[] arr = randomArray(10 + RAND.nextInt(1000));
-
-        AVLTree<Integer> set = new AVLTree<>();
-        for (int value : arr) {
-            set.add(value);
-        }
-
-        int[] arrCopy = Arrays.copyOf(arr, arr.length);
-        Arrays.sort(arrCopy);
-
-        checkIterator(arrCopy, set.iterator());
-    }
-
-
-    private static void checkIterator(int[] expected, Iterator<Integer> it) {
-        for (int expectedValue : expected) {
-            assertTrue(it.hasNext(), "Iterator ended earlier than expected");
-            assertEquals(expectedValue, it.next(), "Incorrect value detected during iteration");
-        }
-
-        assertFalse(it.hasNext());
-    }
 
     @RepeatedTest(100)
     public void addRandomValues() {
@@ -205,29 +128,6 @@ public class AVLTreeTest {
     }
 
     @Test
-    public void addLeftLeftRebalance() {
-        AVLTree<Integer> tree = new AVLTree<>();
-
-        tree.add(10);
-        tree.add(7);
-
-        tree.add(15);
-        tree.add(3);
-        tree.add(9);
-
-        tree.add(2);
-
-        assertEquals(7, tree.root.getValue());
-        assertSame(null, tree.root.getParent());
-
-        AVLTree.Node<Integer> left = tree.root.getLeft();
-        assertEquals(3, left.getValue());
-
-        AVLTree.Node<Integer> right = tree.root.getRight();
-        assertEquals(10, right.getValue());
-    }
-
-    @Test
     public void checkSize() {
         Set<Integer> set = new AVLTree<>();
 
@@ -244,4 +144,81 @@ public class AVLTreeTest {
         set.add(55);
         assertEquals(4, set.size());
     }
+
+    // check AVL tree in-order iterator
+    @Test
+    public void exhaustedIteratorThrowsException() {
+        Set<Integer> set = new AVLTree<>();
+        set.add(8);
+        set.add(5);
+        set.add(15);
+
+        Iterator<Integer> it = set.iterator();
+
+        assertTrue(it.hasNext());
+        assertEquals(5, it.next());
+        assertTrue(it.hasNext());
+        assertEquals(8, it.next());
+        assertTrue(it.hasNext());
+        assertEquals(15, it.next());
+
+        assertFalse(it.hasNext());
+        assertThrows(NoSuchElementException.class, it::next);
+    }
+
+    @Test
+    public void iteratorThrowsExceptionIfModifiedDuringTraversal() {
+        Set<Integer> set = new AVLTree<>();
+        set.add(8);
+        set.add(5);
+        set.add(15);
+
+        Iterator<Integer> it = set.iterator();
+
+        assertTrue(it.hasNext());
+        assertEquals(5, it.next());
+
+        set.add(33);
+        assertTrue(it.hasNext());
+        assertThrows(ConcurrentModificationException.class, it::next);
+    }
+
+    @Test
+    public void iterateOverSet() {
+        Set<Integer> set = new AVLTree<>();
+        set.add(8);
+        set.add(5);
+        set.add(20);
+        set.add(6);
+        set.add(15);
+        set.add(33);
+
+        checkIterator(new int[]{5, 6, 8, 15, 20, 33}, set.iterator());
+    }
+
+    @RepeatedTest(100)
+    public void iterateOverRandomData() {
+
+        int[] arr = randomArray(10 + RAND.nextInt(1000));
+
+        AVLTree<Integer> set = new AVLTree<>();
+        for (int value : arr) {
+            set.add(value);
+        }
+
+        int[] arrCopy = Arrays.copyOf(arr, arr.length);
+        Arrays.sort(arrCopy);
+
+        checkIterator(arrCopy, set.iterator());
+    }
+
+    private static void checkIterator(int[] expected, Iterator<Integer> it) {
+        for (int expectedValue : expected) {
+            assertTrue(it.hasNext(), "Iterator ended earlier than expected");
+            assertEquals(expectedValue, it.next(), "Incorrect value detected during iteration");
+        }
+
+        assertFalse(it.hasNext());
+    }
+
 }
