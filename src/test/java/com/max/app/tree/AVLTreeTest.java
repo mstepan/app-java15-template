@@ -20,6 +20,31 @@ public class AVLTreeTest {
 
     private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
 
+
+    @RepeatedTest(1)
+    public void deleteRandomValues() {
+
+        int[] arr = randomArray(100);
+
+        Set<Integer> expectedSet = new TreeSet<>();
+        AVLTree<Integer> actualSet = new AVLTree<>();
+
+        for (int value : arr) {
+            boolean wasAdded1 = expectedSet.add(value);
+            boolean wasAdded2 = actualSet.add(value);
+            assertEquals(wasAdded1, wasAdded2, "value = " + value);
+        }
+
+        for (int i = 0; i < 30; ++i) {
+            int valueToDelete = arr[i];
+            boolean wasDeleted1 = expectedSet.remove(valueToDelete);
+            boolean wasDeleted2 = actualSet.remove(valueToDelete);
+            assertEquals(wasDeleted1, wasDeleted2, "value = " + valueToDelete);
+        }
+
+    }
+
+
     @RepeatedTest(100)
     public void addRandomValues() {
 
