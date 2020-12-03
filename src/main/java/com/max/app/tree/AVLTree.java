@@ -34,7 +34,7 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
         Node<T> node = findNodeOrParent(value);
 
         // value already exists in tree
-        if (node.value.compareTo(value) == 0) {
+        if (node == null || node.value.compareTo(value) == 0) {
             return false;
         }
 
@@ -56,7 +56,7 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
 
     @Override
     public boolean remove(Object obj) {
-        if (obj == null) {
+        if (obj == null || size == 0) {
             return false;
         }
 
@@ -65,7 +65,7 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
         Node<T> node = findNodeOrParent(valueToDelete);
 
         // value doesn't exists in tree
-        if (node.value.compareTo(valueToDelete) != 0) {
+        if (node == null || node.value.compareTo(valueToDelete) != 0) {
             return false;
         }
 
@@ -78,7 +78,7 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
 
         // case-1: node to delete is leaf node
         if (node.isLeaf()) {
-            deleteFromParent(node.parent, node);
+            deleteNode(node);
             retrace(node.getParent());
         }
         // case-2: node has at least one child
@@ -87,7 +87,7 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
                 Node<T> maxNode = findMax(node.left);
 
                 // 'maxNode' not leaf, has left child
-                if( maxNode.left != null ){
+                if (maxNode.left != null) {
                     maxNode.parent.right = maxNode.left;
                     updateParent(maxNode.left, maxNode.parent);
                     Node<T> temp = maxNode.left;
@@ -99,14 +99,14 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
                 else {
                     Node<T> tempParent = maxNode.parent;
                     node.value = maxNode.value;
-                    deleteFromParent(maxNode.parent, maxNode);
+                    deleteNode(maxNode);
                     retrace(tempParent);
                 }
             }
             else {
                 Node<T> minNode = findMin(node.right);
 
-                if( minNode.right != null ){
+                if (minNode.right != null) {
                     //TODO: similar logic here
                     minNode.parent.left = minNode.right;
                     updateParent(minNode.right, minNode.parent);
@@ -118,7 +118,7 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
                 else {
                     Node<T> tempParent = minNode.parent;
                     node.value = minNode.value;
-                    deleteFromParent(minNode.parent, minNode);
+                    deleteNode(minNode);
                     retrace(tempParent);
                 }
 
@@ -149,7 +149,10 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
         return cur;
     }
 
-    private void deleteFromParent(Node<T> parent, Node<T> nodeToDelete) {
+    private void deleteNode(Node<T> nodeToDelete) {
+
+        Node<T> parent = nodeToDelete.parent;
+
         assert parent != null;
         assert nodeToDelete != null;
 
@@ -160,16 +163,15 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
             parent.right = null;
         }
 
-        parent.recalculateHeight();
-
         nodeToDelete.parent = null;
 
+        parent.recalculateHeight();
     }
 
 
     @Override
     public boolean contains(Object obj) {
-        if (obj == null) {
+        if (obj == null || size == 0) {
             return false;
         }
         T value = (T) obj;

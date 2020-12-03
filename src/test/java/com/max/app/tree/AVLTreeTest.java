@@ -1,5 +1,6 @@
 package com.max.app.tree;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
@@ -20,8 +21,41 @@ public class AVLTreeTest {
 
     private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
 
+    @Test
+    public void deleteLeafNodes(){
+        Set<Integer> tree = new AVLTree<>();
+        tree.add(50);
+        tree.add(120);
+        tree.add(20);
 
-    @RepeatedTest(1)
+        tree.add(90);
+        tree.add(150);
+        tree.add(5);
+
+        assertTrue(tree.remove(90));
+        assertFalse(tree.contains(90));
+
+        assertTrue(tree.remove(150));
+        assertFalse(tree.contains(150));
+
+        assertTrue(tree.remove(5));
+        assertFalse(tree.contains(5));
+
+        assertTrue(tree.remove(20));
+        assertFalse(tree.contains(20));
+
+        assertTrue(tree.remove(120));
+        assertFalse(tree.contains(120));
+
+        assertTrue(tree.remove(50));
+        assertFalse(tree.contains(50));
+
+        assertEquals(0, tree.size());
+    }
+
+
+    @RepeatedTest(10)
+    @Disabled
     public void deleteRandomValues() {
 
         int[] arr = randomArray(100);
@@ -41,7 +75,6 @@ public class AVLTreeTest {
             boolean wasDeleted2 = actualSet.remove(valueToDelete);
             assertEquals(wasDeleted1, wasDeleted2, "value = " + valueToDelete);
         }
-
     }
 
 
