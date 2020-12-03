@@ -70,7 +70,7 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
         }
 
         // check for 'root' as guard clause
-        if (node == root) {
+        if (node == root && size == 1) {
             root = null;
             decSize();
             return true;
@@ -81,47 +81,50 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
             deleteNode(node);
             retrace(node.getParent());
         }
-        // case-2: node has at least one child
-        else {
-            if (node.leftHeight() >= node.rightHeight()) {
-                Node<T> maxNode = findMax(node.left);
+        // case-2: node has ONLY one child
+        else if (node.hasOneChildOnly()) {
+            Node<T> parent = node.parent;
+            Node<T> child = node.firstNotNullChild();
+            updateParentLink(parent, child, node);
 
-                // 'maxNode' not leaf, has left child
-                if (maxNode.left != null) {
-                    maxNode.parent.right = maxNode.left;
-                    updateParent(maxNode.left, maxNode.parent);
-                    Node<T> temp = maxNode.left;
-                    maxNode.left = null;
-                    maxNode.parent = null;
-                    retrace(temp);
+            node.unlink();
+
+            retrace(child);
+        }
+        // case-3: node has both children: left & right
+        else {
+
+            // check height and go left or right
+            Node<T> candidate = (node.leftHeight() >= node.rightHeight()) ? findMax(node.left) : findMin(node.right);
+
+            node.value = candidate.value;
+            Node<T> candidateParent = candidate.parent;
+
+            if (candidate.isLeaf()) {
+                if (candidateParent.left == candidate) {
+                    candidateParent.left = null;
                 }
-                // 'maxNode' is leaf
                 else {
-                    Node<T> tempParent = maxNode.parent;
-                    node.value = maxNode.value;
-                    deleteNode(maxNode);
-                    retrace(tempParent);
+                    candidateParent.right = null;
                 }
+
+                candidate.unlink();
+                retrace(candidateParent);
             }
             else {
-                Node<T> minNode = findMin(node.right);
+                Node<T> candidateChild = candidate.firstNotNullChild();
 
-                if (minNode.right != null) {
-                    //TODO: similar logic here
-                    minNode.parent.left = minNode.right;
-                    updateParent(minNode.right, minNode.parent);
-                    Node<T> temp = minNode.right;
-                    minNode.right = null;
-                    minNode.parent = null;
-                    retrace(temp);
+                if (candidateParent.left == candidate) {
+                    candidateParent.left = candidateChild;
                 }
                 else {
-                    Node<T> tempParent = minNode.parent;
-                    node.value = minNode.value;
-                    deleteNode(minNode);
-                    retrace(tempParent);
+                    candidateParent.right = candidateChild;
                 }
 
+                setParent(candidateChild, candidateParent);
+
+                candidate.unlink();
+                retrace(candidateParent);
             }
         }
 
@@ -145,7 +148,6 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
         while (cur.left != null) {
             cur = cur.left;
         }
-
         return cur;
     }
 
@@ -167,7 +169,6 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
 
         parent.recalculateHeight();
     }
-
 
     @Override
     public boolean contains(Object obj) {
@@ -257,10 +258,10 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
         Node<T> movedUpNode = cur.right;
 
         cur.right = movedUpNode.left;
-        updateParent(movedUpNode.left, cur);
+        setParent(movedUpNode.left, cur);
 
         movedUpNode.left = cur;
-        updateParent(cur, movedUpNode);
+        setParent(cur, movedUpNode);
 
         cur.recalculateHeight();
         movedUpNode.recalculateHeight();
@@ -272,10 +273,10 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
         Node<T> mainNode = cur.left;
 
         cur.left = mainNode.right;
-        updateParent(mainNode.right, cur);
+        setParent(mainNode.right, cur);
 
         mainNode.right = cur;
-        updateParent(mainNode.right, mainNode);
+        setParent(mainNode.right, mainNode);
 
         cur.recalculateHeight();
         mainNode.recalculateHeight();
@@ -295,12 +296,12 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
             else {
                 parent.right = movedUpNode;
             }
-            updateParent(movedUpNode, parent);
+            setParent(movedUpNode, parent);
             parent.recalculateHeight();
         }
     }
 
-    private void updateParent(Node<T> node, Node<T> parent) {
+    private void setParent(Node<T> node, Node<T> parent) {
         if (node == null) {
             return;
         }
@@ -384,7 +385,6 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
             return cur == null ? 0 : cur.height;
         }
 
-
         int balance() {
             int leftHeight = (left == null) ? 0 : left.height;
             int rightHeight = (right == null) ? 0 : right.height;
@@ -399,13 +399,14 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
             return left == null && right == null;
         }
 
-        boolean hasOneChild() {
-            int childCount = (left == null ? 0 : 1) + (right == null ? 0 : 1);
-            return childCount == 1;
+        boolean hasOneChildOnly() {
+            return (left == null) ^ (right == null);
         }
 
-        U getValue() {
-            return value;
+        void unlink() {
+            left = null;
+            right = null;
+            parent = null;
         }
 
         public int getHeight() {
@@ -424,12 +425,8 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
             return parent;
         }
 
-        Node<U> getLeft() {
-            return left;
-        }
-
-        Node<U> getRight() {
-            return right;
+        Node<U> firstNotNullChild() {
+            return left != null ? left : right;
         }
 
         @Override

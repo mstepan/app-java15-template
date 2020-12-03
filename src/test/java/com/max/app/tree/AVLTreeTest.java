@@ -22,7 +22,44 @@ public class AVLTreeTest {
     private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
 
     @Test
-    public void deleteLeafNodes(){
+    public void deleteRootValue() {
+        Set<Integer> tree = new AVLTree<>();
+        tree.add(50);
+
+        tree.add(20);
+        tree.add(120);
+
+        tree.add(5);
+        tree.add(90);
+        tree.add(150);
+
+        tree.add(80);
+
+        assertTrue(tree.remove(50));
+        assertFalse(tree.contains(50));
+    }
+
+    @Test
+    public void deleteNonLeafNode() {
+        Set<Integer> tree = new AVLTree<>();
+        tree.add(50);
+
+        tree.add(20);
+        tree.add(120);
+
+        tree.add(5);
+        tree.add(90);
+        tree.add(150);
+
+        tree.add(80);
+
+        assertTrue(tree.remove(120));
+        assertFalse(tree.contains(120));
+    }
+
+
+    @Test
+    public void deleteLeafNodes() {
         Set<Integer> tree = new AVLTree<>();
         tree.add(50);
         tree.add(120);
@@ -55,7 +92,6 @@ public class AVLTreeTest {
 
 
     @RepeatedTest(10)
-    @Disabled
     public void deleteRandomValues() {
 
         int[] arr = randomArray(100);
