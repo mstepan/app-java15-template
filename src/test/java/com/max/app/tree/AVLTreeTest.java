@@ -21,77 +21,8 @@ public class AVLTreeTest {
 
     private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
 
-    @Test
-    public void deleteRootValue() {
-        Set<Integer> tree = new AVLTree<>();
-        tree.add(50);
-
-        tree.add(20);
-        tree.add(120);
-
-        tree.add(5);
-        tree.add(90);
-        tree.add(150);
-
-        tree.add(80);
-
-        assertTrue(tree.remove(50));
-        assertFalse(tree.contains(50));
-    }
-
-    @Test
-    public void deleteNonLeafNode() {
-        Set<Integer> tree = new AVLTree<>();
-        tree.add(50);
-
-        tree.add(20);
-        tree.add(120);
-
-        tree.add(5);
-        tree.add(90);
-        tree.add(150);
-
-        tree.add(80);
-
-        assertTrue(tree.remove(120));
-        assertFalse(tree.contains(120));
-    }
-
-
-    @Test
-    public void deleteLeafNodes() {
-        Set<Integer> tree = new AVLTree<>();
-        tree.add(50);
-        tree.add(120);
-        tree.add(20);
-
-        tree.add(90);
-        tree.add(150);
-        tree.add(5);
-
-        assertTrue(tree.remove(90));
-        assertFalse(tree.contains(90));
-
-        assertTrue(tree.remove(150));
-        assertFalse(tree.contains(150));
-
-        assertTrue(tree.remove(5));
-        assertFalse(tree.contains(5));
-
-        assertTrue(tree.remove(20));
-        assertFalse(tree.contains(20));
-
-        assertTrue(tree.remove(120));
-        assertFalse(tree.contains(120));
-
-        assertTrue(tree.remove(50));
-        assertFalse(tree.contains(50));
-
-        assertEquals(0, tree.size());
-    }
-
-
-    @RepeatedTest(10)
+    @RepeatedTest(5)
+    @Disabled
     public void deleteRandomValues() {
 
         int[] arr = randomArray(100);
@@ -110,9 +41,83 @@ public class AVLTreeTest {
             boolean wasDeleted1 = expectedSet.remove(valueToDelete);
             boolean wasDeleted2 = actualSet.remove(valueToDelete);
             assertEquals(wasDeleted1, wasDeleted2, "value = " + valueToDelete);
+            assertAVLTreePropertiesCorrect(actualSet);
         }
     }
 
+    @Test
+    public void deleteRootValue() {
+        AVLTree<Integer> tree = new AVLTree<>();
+        tree.add(50);
+
+        tree.add(20);
+        tree.add(120);
+
+        tree.add(5);
+        tree.add(90);
+        tree.add(150);
+
+        tree.add(80);
+
+        assertTrue(tree.remove(50));
+        assertFalse(tree.contains(50));
+        assertAVLTreePropertiesCorrect(tree);
+    }
+
+    @Test
+    public void deleteNonLeafNode() {
+        AVLTree<Integer> tree = new AVLTree<>();
+        tree.add(50);
+
+        tree.add(20);
+        tree.add(120);
+
+        tree.add(5);
+        tree.add(90);
+        tree.add(150);
+
+        tree.add(80);
+
+        assertTrue(tree.remove(120));
+        assertFalse(tree.contains(120));
+        assertAVLTreePropertiesCorrect(tree);
+    }
+
+    @Test
+    public void deleteLeafNodes() {
+        AVLTree<Integer> tree = new AVLTree<>();
+        tree.add(50);
+        tree.add(120);
+        tree.add(20);
+
+        tree.add(90);
+        tree.add(150);
+        tree.add(5);
+
+        assertTrue(tree.remove(90));
+        assertFalse(tree.contains(90));
+        assertAVLTreePropertiesCorrect(tree);
+
+        assertTrue(tree.remove(150));
+        assertFalse(tree.contains(150));
+        assertAVLTreePropertiesCorrect(tree);
+
+        assertTrue(tree.remove(5));
+        assertFalse(tree.contains(5));
+        assertAVLTreePropertiesCorrect(tree);
+
+        assertTrue(tree.remove(20));
+        assertFalse(tree.contains(20));
+        assertAVLTreePropertiesCorrect(tree);
+
+        assertTrue(tree.remove(120));
+        assertFalse(tree.contains(120));
+
+        assertTrue(tree.remove(50));
+        assertFalse(tree.contains(50));
+
+        assertEquals(0, tree.size());
+    }
 
     @RepeatedTest(100)
     public void addRandomValues() {
@@ -147,7 +152,7 @@ public class AVLTreeTest {
 
         actualTree.visitPostOrder(visitor);
 
-        int maxPossibleAvlHeight = (int) Math.ceil(1.44 * log2(actualTree.size()));
+        int maxPossibleAvlHeight = (int) (Math.ceil(1.44 * log2(actualTree.size())));
 
         assertTrue(visitor.height() <= maxPossibleAvlHeight, "Abnormal AVL tree height detected, maxPossible: " +
                 maxPossibleAvlHeight + ", but found: " + visitor.height());

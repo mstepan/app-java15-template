@@ -88,7 +88,6 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
             updateParentLink(parent, child, node);
 
             node.unlink();
-
             retrace(child);
         }
         // case-3: node has both children: left & right
@@ -229,7 +228,7 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
                 }
                 else {
                     throw new IllegalStateException(String.format("Undefined rotation case, not LEFT-LEFT or LEFT-RIGHT: " +
-                                                                          "cur %s, cur.left: %s, cur.right: %s",
+                                                                          "cur: [%s], left: [%s], right: [%s]",
                                                                   cur, cur.left, cur.right));
                 }
             }
@@ -245,7 +244,7 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
                 }
                 else {
                     throw new IllegalStateException(String.format("Undefined rotation case, not RIGHT-RIGHT or RIGHT-LEFT: " +
-                                                                          "cur %s, cur.left: %s, cur.right: %s",
+                                                                          "cur: [%s], left: [%s], right: [%s]",
                                                                   cur, cur.left, cur.right));
                 }
             }
@@ -378,11 +377,7 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
         }
 
         void recalculateHeight() {
-            height = 1 + Math.max(getHeightOrZero(left), getHeightOrZero(right));
-        }
-
-        static <U> int getHeightOrZero(Node<U> cur) {
-            return cur == null ? 0 : cur.height;
+            height = 1 + Math.max(leftHeight(), rightHeight());
         }
 
         int balance() {
@@ -431,7 +426,7 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
 
         @Override
         public String toString() {
-            return String.format("%s, h = %d", value, height);
+            return String.format("%s, h:  %d, b: %d", value, height, balance());
         }
     }
 
