@@ -78,8 +78,9 @@ public class AVLTree<T extends Comparable<T>> extends AbstractSet<T> {
 
         // case-1: node to delete is leaf node
         if (node.isLeaf()) {
+            Node<T> nodeParent = node.parent;
             deleteNode(node);
-            retrace(node.getParent());
+            retrace(nodeParent);
         }
         // case-2: node has ONLY one child
         else if (node.hasOneChildOnly()) {
