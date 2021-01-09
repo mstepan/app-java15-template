@@ -10,11 +10,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <assertj.version>3.15.0</assertj.version>
-        <slf4j.version>1.7.20</slf4j.version>
-        <logback.version>1.1.7</logback.version>
         <error.prone.core.version>2.3.2</error.prone.core.version>
         <java.version>15</java.version>
+        <jedis.version>3.4.1</jedis.version>
+        <logback.version>1.1.7</logback.version>
+        <lombok.version>1.18.16</lombok.version>
         <mockito-version>2.21.0</mockito-version>
+        <prometheus.client.version>0.9.0</prometheus.client.version>
+        <slf4j.version>1.7.20</slf4j.version>
         <surefire.plugin.version>3.0.0-M4</surefire.plugin.version>
     </properties>
 
@@ -81,14 +84,22 @@
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient</artifactId>
-            <version>0.9.0</version>
+            <version>${prometheus.client.version}</version>
         </dependency>
+
+        <!-- Jedis (redis client) -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>${jedis.version}</version>
+        </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.16</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -133,8 +144,6 @@
             <artifactId>converter-jackson</artifactId>
             <version>2.5.0</version>
         </dependency>
-
-
 
 
         <!-- Test dependencies -->
