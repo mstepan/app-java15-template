@@ -46,6 +46,7 @@ public final class MovieService implements AutoCloseable {
 
     private static Map<String, String> toMap(Movie movie) {
         Map<String, String> map = new HashMap<>();
+        map.put("id", movie.getId());
         map.put("title", movie.getTitle());
         map.put("description", movie.getDescription());
         map.put("votes", String.valueOf(movie.getVotes()));
