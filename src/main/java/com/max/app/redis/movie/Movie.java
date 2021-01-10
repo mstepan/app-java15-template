@@ -1,4 +1,4 @@
-package com.max.app.movie;
+package com.max.app.redis.movie;
 
 public class Movie {
 
