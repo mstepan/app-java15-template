@@ -32,7 +32,16 @@ public final class RedisQueue {
      * Use LPOP Redis command to get value from the head of a list.
      * This operation is not blocking, so returns null immediately if the list is empty.
      */
-    public String take() {
+    public String peek() {
         return LOCAL_JEDIS.get().lpop(listName);
+    }
+
+    /**
+     * Use LLEN Redis command to obtain list size.
+     * <p>
+     * TODO: list length can be up to 2^32-1, so int may overflow below.
+     */
+    public int size() {
+        return LOCAL_JEDIS.get().llen(listName).intValue();
     }
 }

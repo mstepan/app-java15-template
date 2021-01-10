@@ -11,11 +11,11 @@ public final class RedisQueueMain {
 
         ScheduledExecutorService pool = Executors.newScheduledThreadPool(2);
         Runnable task = () -> {
-            String value = q.take();
+            String value = q.peek();
 
             while (value != null) {
                 System.out.println(value);
-                value = q.take();
+                value = q.peek();
             }
         };
 
@@ -27,10 +27,10 @@ public final class RedisQueueMain {
             q.add(String.format("value:%d", i));
         }
 
-        TimeUnit.SECONDS.sleep(30);
+        TimeUnit.SECONDS.sleep(10);
 
         pool.shutdownNow();
 
-        System.out.printf("Main completed. java version: %s%n", System.getProperty("java.version"));
+        System.out.printf("RedisQueueMain completed. java version: %s%n", System.getProperty("java.version"));
     }
 }
