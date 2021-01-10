@@ -2,6 +2,7 @@ package com.max.app.redis.queue;
 
 import redis.clients.jedis.Jedis;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -34,6 +35,19 @@ public final class RedisQueue {
      */
     public String peek() {
         return LOCAL_JEDIS.get().lpop(listName);
+    }
+
+    /**
+     * Use BLPOP Redis command, which is similar to LPOP, but will block the thread if list is empty.
+     */
+    public String take() {
+
+        // 0, means no timeout at all
+        final int blpopTimeout = 0;
+
+        // res[0] - list name, res[1] - popped value
+        List<String> res = LOCAL_JEDIS.get().blpop(blpopTimeout, listName);
+        return res.get(1);
     }
 
     /**
