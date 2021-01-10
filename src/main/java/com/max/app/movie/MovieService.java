@@ -20,7 +20,7 @@ public final class MovieService implements AutoCloseable {
     }
 
     public Movie findById(String id) {
-        return toMovie(jedis.hmget(key(id), "id", "title", "description", "votes"));
+        return toMovie(jedis.hmget(key(id), "id", "title", "description", "year", "votes"));
     }
 
     public void delete(Movie movie) {
@@ -49,13 +49,16 @@ public final class MovieService implements AutoCloseable {
         map.put("id", movie.getId());
         map.put("title", movie.getTitle());
         map.put("description", movie.getDescription());
+        map.put("year", String.valueOf(movie.getYear()));
         map.put("votes", String.valueOf(movie.getVotes()));
         return map;
     }
 
     private static Movie toMovie(List<String> data) {
-        assert data.size() == 4 : "Incorrect hash length from Redis";
-        return new Movie(data.get(0), data.get(1), data.get(2), Integer.parseInt(data.get(3)));
+        assert data.size() == 5 : "Incorrect hash length from Redis";
+        return new Movie(data.get(0), data.get(1), data.get(2),
+                         Integer.parseInt(data.get(3)),
+                         Integer.parseInt(data.get(4)));
     }
 
 }

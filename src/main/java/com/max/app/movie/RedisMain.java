@@ -6,7 +6,7 @@ public final class RedisMain {
 
         try (MovieService service = new MovieService()) {
 
-            Movie alien2 = new Movie("id-133", "Alien 2", "Cool film about aliens", 0);
+            Movie alien2 = new Movie("id-133", "Alien 2", "Cool film about aliens", 1987, 0);
 
             service.store(alien2);
 

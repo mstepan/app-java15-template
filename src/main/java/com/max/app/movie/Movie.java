@@ -7,12 +7,15 @@ public class Movie {
     private final String title;
     private final String description;
 
+    private final int year;
+
     private final int votes;
 
-    public Movie(String id, String title, String description, int votes) {
+    public Movie(String id, String title, String description, int year, int votes) {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.year = year;
         this.votes = votes;
     }
 
@@ -28,6 +31,10 @@ public class Movie {
         return description;
     }
 
+    public int getYear() {
+        return year;
+    }
+
     public int getVotes() {
         return votes;
     }
@@ -37,6 +44,7 @@ public class Movie {
         return "id: " + id +
                 ", title: " + title +
                 ", description: " + description +
+                ", year: " + year +
                 ", votes: " + votes;
     }
 }
