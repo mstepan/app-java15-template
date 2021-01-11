@@ -21,17 +21,19 @@ public final class RedisQueueMain {
 //
 //        pool.scheduleAtFixedRate(task, 0L, 1L, TimeUnit.SECONDS);
 
-        final int threadsCount = 2;
+        final int threadsCount = 10;
 
         ExecutorService pool = Executors.newCachedThreadPool();
         for (int i = 0; i < threadsCount; ++i) {
             pool.execute(() -> {
-                while (true) {
+                while (!Thread.currentThread().isInterrupted()) {
                     try {
                         String value = q.takeReliable();
+
                         if (value.equals("value:4")) {
                             throw new IllegalStateException("Emulated exception");
                         }
+
                         System.out.printf("Thread-%d: received value %s%n", Thread.currentThread().getId(), value);
                         q.removeFromBackup(value);
                     }
@@ -48,9 +50,10 @@ public final class RedisQueueMain {
             q.add(String.format("value:%d", i));
         }
 
-        TimeUnit.SECONDS.sleep(10);
+        TimeUnit.SECONDS.sleep(5);
 
-        pool.shutdownNow();
+        pool.shutdown();
+        pool.awaitTermination(3L, TimeUnit.SECONDS);
 
         System.out.printf("RedisQueueMain completed. java version: %s%n", System.getProperty("java.version"));
     }

@@ -10,6 +10,9 @@ import java.util.UUID;
  */
 public final class RedisQueue {
 
+    // 0, means infinity timeout
+    private static final int INFINITY_TIMEOUT = 0;
+
     private final String listName;
     private final String backupListName;
 
@@ -45,18 +48,19 @@ public final class RedisQueue {
      * Use BRPOP Redis command, which is similar to RPOP, but will block the thread if list is empty.
      */
     public String take() {
-        // 0, means no timeout at all
-        final int timeout = 0;
-
         // res[0] - list name, res[1] - popped value
-        List<String> res = LOCAL_JEDIS.get().brpop(timeout, listName);
+        List<String> res = LOCAL_JEDIS.get().brpop(INFINITY_TIMEOUT, listName);
         return res.get(1);
     }
 
     public String takeReliable(){
+        return takeReliable(INFINITY_TIMEOUT);
+    }
 
-        // 0, means no timeout at all
-        final int timeout = 0;
+    /**
+     * Use BRPOPLPUSH Redis command & reliable queue pattern (https://redis.io/commands/rpoplpush).
+     */
+    public String takeReliable(int timeout){
         return LOCAL_JEDIS.get().brpoplpush(listName, backupListName, timeout);
     }
 
