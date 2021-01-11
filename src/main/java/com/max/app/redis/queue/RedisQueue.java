@@ -11,10 +11,14 @@ import java.util.UUID;
 public final class RedisQueue {
 
     private final String listName;
+    private final String backupListName;
 
     public RedisQueue() {
         listName = "dss:uap:async:tasks:queue:" + UUID.randomUUID();
-        System.out.printf("list key name: %s%n", listName);
+        backupListName = "dss:uap:async:tasks:queue:" + UUID.randomUUID();
+
+        System.out.printf("list name: %s%n", listName);
+        System.out.printf("backup list name: %s%n", backupListName);
     }
 
     /**
@@ -23,31 +27,44 @@ public final class RedisQueue {
     private static final ThreadLocal<Jedis> LOCAL_JEDIS = ThreadLocal.withInitial(() -> new Jedis("localhost"));
 
     /**
-     * Use RPUSH Redis command to add value to the tail of a list.
+     * Use LPUSH Redis command to add value to the head of a list.
      */
     public void add(String value) {
-        LOCAL_JEDIS.get().rpush(listName, value);
+        LOCAL_JEDIS.get().lpush(listName, value);
     }
 
     /**
-     * Use LPOP Redis command to get value from the head of a list.
+     * Use RPOP Redis command to get value from the tail of a list.
      * This operation is not blocking, so returns null immediately if the list is empty.
      */
     public String peek() {
-        return LOCAL_JEDIS.get().lpop(listName);
+        return LOCAL_JEDIS.get().rpop(listName);
     }
 
     /**
-     * Use BLPOP Redis command, which is similar to LPOP, but will block the thread if list is empty.
+     * Use BRPOP Redis command, which is similar to RPOP, but will block the thread if list is empty.
      */
     public String take() {
-
         // 0, means no timeout at all
-        final int blpopTimeout = 0;
+        final int timeout = 0;
 
         // res[0] - list name, res[1] - popped value
-        List<String> res = LOCAL_JEDIS.get().blpop(blpopTimeout, listName);
+        List<String> res = LOCAL_JEDIS.get().brpop(timeout, listName);
         return res.get(1);
+    }
+
+    public String takeReliable(){
+
+        // 0, means no timeout at all
+        final int timeout = 0;
+        return LOCAL_JEDIS.get().brpoplpush(listName, backupListName, timeout);
+    }
+
+    /**
+     * Use LREM Redis command to remove element from back up queue.
+     */
+    public void removeFromBackup(String value){
+        LOCAL_JEDIS.get().lrem(backupListName, 1, value);
     }
 
     /**

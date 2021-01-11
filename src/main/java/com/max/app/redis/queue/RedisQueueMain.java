@@ -1,5 +1,7 @@
 package com.max.app.redis.queue;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public final class RedisQueueMain {
@@ -19,13 +21,26 @@ public final class RedisQueueMain {
 //
 //        pool.scheduleAtFixedRate(task, 0L, 1L, TimeUnit.SECONDS);
 
-        new Thread(() -> {
-            for (int i = 0; i < 10; ++i) {
-                String value = q.take();
-                System.out.println("IN-THREAD: " + value);
-            }
+        final int threadsCount = 2;
 
-        }).start();
+        ExecutorService pool = Executors.newCachedThreadPool();
+        for (int i = 0; i < threadsCount; ++i) {
+            pool.execute(() -> {
+                while (true) {
+                    try {
+                        String value = q.takeReliable();
+                        if (value.equals("value:4")) {
+                            throw new IllegalStateException("Emulated exception");
+                        }
+                        System.out.printf("Thread-%d: received value %s%n", Thread.currentThread().getId(), value);
+                        q.removeFromBackup(value);
+                    }
+                    catch (Exception ex) {
+                        System.out.printf("Thread-%d: Exception: %s%n", Thread.currentThread().getId(), ex.getMessage());
+                    }
+                }
+            });
+        }
 
         TimeUnit.SECONDS.sleep(5);
 
@@ -35,7 +50,7 @@ public final class RedisQueueMain {
 
         TimeUnit.SECONDS.sleep(10);
 
-//        pool.shutdownNow();
+        pool.shutdownNow();
 
         System.out.printf("RedisQueueMain completed. java version: %s%n", System.getProperty("java.version"));
     }
