@@ -17,11 +17,8 @@ public final class RedisQueue {
     private final String backupListName;
 
     public RedisQueue() {
-        listName = "dss:uap:async:tasks:queue:" + UUID.randomUUID();
-        backupListName = "dss:uap:async:tasks:queue:" + UUID.randomUUID();
-
-        System.out.printf("list name: %s%n", listName);
-        System.out.printf("backup list name: %s%n", backupListName);
+        listName = "dss:uap:async:tasks:queue:0ad21a28-e071-442e-8435-793c43f435c7";
+        backupListName = "dss:uap:async:tasks:backup:queue:0ad21a28-e071-442e-8435-793c43f435c7";
     }
 
     /**

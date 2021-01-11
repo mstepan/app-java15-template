@@ -7,21 +7,9 @@ import java.util.concurrent.TimeUnit;
 public final class RedisQueueMain {
 
     public static void main(String[] args) throws Exception {
-        RedisQueue q = new RedisQueue();
+        final RedisQueue q = new RedisQueue();
 
-//        ScheduledExecutorService pool = Executors.newScheduledThreadPool(2);
-//        Runnable task = () -> {
-//            String value = q.peek();
-//
-//            while (value != null) {
-//                System.out.println(value);
-//                value = q.peek();
-//            }
-//        };
-//
-//        pool.scheduleAtFixedRate(task, 0L, 1L, TimeUnit.SECONDS);
-
-        final int threadsCount = 10;
+        final int threadsCount = 4;
 
         ExecutorService pool = Executors.newCachedThreadPool();
         for (int i = 0; i < threadsCount; ++i) {
@@ -46,9 +34,9 @@ public final class RedisQueueMain {
 
         TimeUnit.SECONDS.sleep(5);
 
-        for (int i = 0; i < 10; ++i) {
-            q.add(String.format("value:%d", i));
-        }
+//        for (int i = 0; i < 10; ++i) {
+//            q.add(String.format("value:%d", i));
+//        }
 
         TimeUnit.SECONDS.sleep(5);
 
