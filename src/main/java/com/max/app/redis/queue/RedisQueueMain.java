@@ -34,9 +34,9 @@ public final class RedisQueueMain {
 
         TimeUnit.SECONDS.sleep(5);
 
-//        for (int i = 0; i < 10; ++i) {
-//            q.add(String.format("value:%d", i));
-//        }
+        for (int i = 0; i < 10; ++i) {
+            q.add(String.format("value:%d", i));
+        }
 
         TimeUnit.SECONDS.sleep(5);
 

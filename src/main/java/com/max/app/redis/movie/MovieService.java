@@ -16,11 +16,12 @@ public final class MovieService implements AutoCloseable {
     private final Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
 
     public void store(Movie movie) {
+        // As per Redis 4.0.0, HMSET is considered deprecated. Please prefer HSET in new code.
         jedis.hset(key(movie.getId()), toMap(movie));
     }
 
     public Movie findById(String id) {
-        return toMovie(jedis.hmget(key(id), "id", "title", "description", "year", "votes"));
+        return toMovie(jedis.hgetAll(key(id)));
     }
 
     public void delete(Movie movie) {
@@ -54,11 +55,12 @@ public final class MovieService implements AutoCloseable {
         return map;
     }
 
-    private static Movie toMovie(List<String> data) {
-        assert data.size() == 5 : "Incorrect hash length from Redis";
-        return new Movie(data.get(0), data.get(1), data.get(2),
-                         Integer.parseInt(data.get(3)),
-                         Integer.parseInt(data.get(4)));
+    private static Movie toMovie(Map<String, String> data) {
+        return new Movie(data.get("id"),
+                         data.get("title"),
+                         data.get("description"),
+                         Integer.parseInt(data.get("year")),
+                         Integer.parseInt(data.get("votes")));
     }
 
 }
