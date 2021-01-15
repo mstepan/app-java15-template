@@ -3,7 +3,7 @@ package com.max.app.redis.queue;
 import redis.clients.jedis.Jedis;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * Queue backed by Redis list.
@@ -50,21 +50,21 @@ public final class RedisQueue {
         return res.get(1);
     }
 
-    public String takeReliable(){
+    public String takeReliable() {
         return takeReliable(INFINITY_TIMEOUT);
     }
 
     /**
      * Use BRPOPLPUSH Redis command & reliable queue pattern (https://redis.io/commands/rpoplpush).
      */
-    public String takeReliable(int timeout){
+    public String takeReliable(int timeout) {
         return LOCAL_JEDIS.get().brpoplpush(listName, backupListName, timeout);
     }
 
     /**
      * Use LREM Redis command to remove element from back up queue.
      */
-    public void removeFromBackup(String value){
+    public void removeFromBackup(String value) {
         LOCAL_JEDIS.get().lrem(backupListName, 1, value);
     }
 
@@ -75,5 +75,36 @@ public final class RedisQueue {
      */
     public int size() {
         return LOCAL_JEDIS.get().llen(listName).intValue();
+    }
+
+    /**
+     * Fully remove list & backup list keys
+     */
+    public void clear() {
+        LOCAL_JEDIS.get().del(listName);
+        LOCAL_JEDIS.get().del(backupListName);
+    }
+
+    /**
+     * Use Redis RPOPLPUSH to emulate circular queue.
+     */
+    public void traverse(Consumer<String> consumer) {
+
+        String initialValue = LOCAL_JEDIS.get().lindex(listName, 0);
+
+        // queue is empty
+        if (initialValue == null) {
+            return;
+        }
+
+        while (true) {
+            String value = LOCAL_JEDIS.get().rpoplpush(listName, listName);
+
+            consumer.accept(value);
+
+            if (value.equals(initialValue)) {
+                break;
+            }
+        }
     }
 }
