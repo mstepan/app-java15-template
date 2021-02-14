@@ -24,7 +24,7 @@ public final class RSAMain {
 
     public static void main(String[] args) throws Exception {
 
-        String plainText = "Devoxx!!".repeat(5);
+        String plainText = "Devoxx!!".repeat(1);
 
         final String algo = "RSA";
 
