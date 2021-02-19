@@ -9,7 +9,7 @@ public final class BigNumMain {
 
         for (int it = 0; it < 1_000_000; ++it) {
 
-            int randValue = ThreadLocalRandom.current().nextInt(100_000_000);
+            int randValue = ThreadLocalRandom.current().nextInt(1_000_000_000);
 
             BigNum value = new BigNum(String.valueOf(randValue));
 

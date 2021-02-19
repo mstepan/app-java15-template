@@ -6,7 +6,11 @@ import java.util.Queue;
 
 public class BigNum {
 
-    private static final int BASE = 256;
+    // use 2**30 as a base
+//    private static final int BASE = 1 << 30;
+
+    private static final int BASE = 1024;
+
     private final int[] value;
 
     public BigNum(String decimalValue) {
