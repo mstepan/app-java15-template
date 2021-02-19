@@ -9,6 +9,30 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class BigNumTest {
 
+    private static final int NUMBERS_RANGE = '9' - '0' + 1;
+
+    private static final Random RAND = new Random();
+
+    @Test
+    public void createFromInt() {
+        for (int it = 0; it < 1_000; ++it) {
+            int randValue = RAND.nextInt();
+            BigNum bigNum = new BigNum(randValue);
+
+            assertThat(bigNum.toBigInt()).isEqualTo(BigInteger.valueOf(randValue));
+        }
+    }
+
+    @Test
+    public void createFromLong() {
+        for (int it = 0; it < 1_000; ++it) {
+            long randValue = RAND.nextLong();
+            BigNum bigNum = new BigNum(randValue);
+
+            assertThat(bigNum.toBigInt()).isEqualTo(BigInteger.valueOf(randValue));
+        }
+    }
+
     @Test
     public void createBigNumberFromString() {
 
@@ -30,9 +54,6 @@ public class BigNumTest {
         }
     }
 
-    private static final int NUMBERS_RANGE = '9' - '0' + 1;
-
-    private static final Random RAND = new Random();
 
     private static String createRandomNumberString(int length) {
         char[] arr = new char[length];

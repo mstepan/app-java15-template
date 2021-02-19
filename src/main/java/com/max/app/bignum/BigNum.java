@@ -3,6 +3,7 @@ package com.max.app.bignum;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Objects;
 import java.util.Queue;
 
 public class BigNum {
@@ -10,17 +11,34 @@ public class BigNum {
     // use 2**30 as a base
     private static final int BASE = 1 << 30;
 
-    private final int[] value;
+    private final int[] digits;
+
+    // for positive values sign = 1, for negative = -1
+    private final int sign;
 
     public BigNum(String decimalValue) {
-        value = convertToBase(toIntArray(decimalValue), BASE);
+
+        final String decimalStr = Objects.requireNonNull(decimalValue).trim();
+
+        if (decimalStr.startsWith("-")) {
+            this.digits = convertToBase(toIntArray(decimalValue.substring(1)));
+            this.sign = -1;
+        }
+        else {
+            this.digits = convertToBase(toIntArray(decimalValue));
+            this.sign = 1;
+        }
     }
 
-    public BigNum(int[] digits) {
-        this.value = digits;
+    public BigNum(int intValue) {
+        this(String.valueOf(intValue));
     }
 
-    private int[] convertToBase(int[] decimalDigits, int base) {
+    public BigNum(long longValue) {
+        this(String.valueOf(longValue));
+    }
+
+    private int[] convertToBase(int[] decimalDigits) {
 
         Deque<Integer> resDigits = new ArrayDeque<>();
 
@@ -28,9 +46,9 @@ public class BigNum {
 
         while (cur.length != 0) {
 
-            DivResult res = divideDecimalForBase(cur, base);
-            resDigits.push(res.remain());
+            DivResult res = divideDecimalForBase(cur, BASE);
 
+            resDigits.push(res.remain());
             cur = res.result();
         }
 
@@ -70,14 +88,14 @@ public class BigNum {
         if (index == value.length) {
 
             if (cur >= base) {
-                result.add( (int)(cur / base));
+                result.add((int) (cur / base));
                 cur %= base;
             }
 
-            return new DivResult(toIntArray(result), (int)cur);
+            return new DivResult(toIntArray(result), (int) cur);
         }
 
-        result.add((int)(cur / base));
+        result.add((int) (cur / base));
         cur %= base;
 
         for (int i = index; i < value.length; ++i) {
@@ -86,7 +104,7 @@ public class BigNum {
 
             // do division
             if (cur >= base) {
-                result.add( (int)(cur / base));
+                result.add((int) (cur / base));
                 cur %= base;
             }
             else {
@@ -94,7 +112,7 @@ public class BigNum {
             }
         }
 
-        return new DivResult(toIntArray(result), (int)cur);
+        return new DivResult(toIntArray(result), (int) cur);
     }
 
     private static int[] toIntArray(Queue<Integer> queue) {
@@ -128,11 +146,11 @@ public class BigNum {
         BigInteger res = BigInteger.ZERO;
         BigInteger base = BigInteger.valueOf(BASE);
 
-        for (int singleDigit : value) {
+        for (int singleDigit : digits) {
             res = res.multiply(base).add(BigInteger.valueOf(singleDigit));
         }
 
-        return res;
+        return res.multiply(BigInteger.valueOf(sign));
     }
 
     @Override
