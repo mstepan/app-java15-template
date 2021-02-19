@@ -1,11 +1,12 @@
 package com.max.app.bignum;
 
 import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Queue;
 
 public class BigNum {
 
-    private static final int BASE = 16;
+    private static final int BASE = 256;
     private final int[] value;
 
     public BigNum(String decimalValue) {
@@ -16,15 +17,27 @@ public class BigNum {
         this.value = digits;
     }
 
-
     private int[] convertToBase(int[] decimalDigits, int base) {
 
+        Deque<Integer> resDigits = new ArrayDeque<>();
 
-        DivResult res = divideDecimalForBase(decimalDigits, base);
+        int[] cur = decimalDigits;
 
+        while (cur.length != 0) {
 
-        return null;
+            DivResult res = divideDecimalForBase(cur, base);
+            resDigits.push(res.remain());
 
+            cur = res.result();
+        }
+
+        int[] convertedValue = new int[resDigits.size()];
+
+        for (int i = 0; i < convertedValue.length && !resDigits.isEmpty(); ++i) {
+            convertedValue[i] = resDigits.pop();
+        }
+
+        return convertedValue;
     }
 
     /**
@@ -40,9 +53,29 @@ public class BigNum {
         assert base > 0 : "negative of zero 'base' detected: " + base;
 
         Queue<Integer> result = new ArrayDeque<>();
+
+        int index = 0;
         int cur = 0;
 
-        for (int i = 0; i < value.length; ++i) {
+        while (cur < base && index < value.length) {
+            cur = cur * 10 + value[index];
+            ++index;
+        }
+
+        if (index == value.length) {
+
+            if (cur >= base) {
+                result.add(cur / base);
+                cur %= base;
+            }
+
+            return new DivResult(toIntArray(result), cur);
+        }
+
+        result.add(cur / base);
+        cur %= base;
+
+        for (int i = index; i < value.length; ++i) {
 
             cur = cur * 10 + value[i];
 
@@ -51,11 +84,11 @@ public class BigNum {
                 result.add(cur / base);
                 cur %= base;
             }
-            // handle corner-case when we added last digit, but cur < base
-            else if (i == value.length - 1) {
+            else {
                 result.add(0);
             }
         }
+
         return new DivResult(toIntArray(result), cur);
     }
 
@@ -86,18 +119,14 @@ public class BigNum {
         return res;
     }
 
-    /**
-     * @param digits - array of digits using big endian order (MSD first) in 'base'.
-     * @param base   - the base that is used
-     * @return decimal value representation
-     */
-    private static int toDecimalValue(int[] digits, int base) {
+
+    public int toDecimalValue() {
         //TODO: do not handle overflow yet, just convert to base 10.
 
         int res = 0;
 
-        for (int singleDigit : digits) {
-            res = res * base + singleDigit;
+        for (int singleDigit : this.value) {
+            res = res * BASE + singleDigit;
         }
 
         return res;
@@ -105,7 +134,7 @@ public class BigNum {
 
     @Override
     public String toString() {
-        return "value: " + toDecimalValue(value, BASE);
+        return "value: " + toDecimalValue();
     }
 
 }

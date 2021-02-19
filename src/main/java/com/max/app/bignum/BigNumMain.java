@@ -1,13 +1,24 @@
 package com.max.app.bignum;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public final class BigNumMain {
 
 
     public static void main(String[] args) throws Exception {
 
-        BigNum value = new BigNum(new int[]{2, 6, 12, 13, 15});
+        for (int it = 0; it < 1_000_000; ++it) {
 
-        System.out.println(value);
+            int randValue = ThreadLocalRandom.current().nextInt(100_000_000);
+
+            BigNum value = new BigNum(String.valueOf(randValue));
+
+            int bigNumAsDecimal = value.toDecimalValue();
+
+            if (randValue != bigNumAsDecimal) {
+                System.out.printf("Mismatch, randValue: %d, BigNum: %s%n", randValue, bigNumAsDecimal);
+            }
+        }
 
         System.out.printf("BigNumMain completed..., java version:%s%n", System.getProperty("java.version"));
     }
