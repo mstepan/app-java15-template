@@ -8,9 +8,7 @@ import java.util.Queue;
 public class BigNum {
 
     // use 2**30 as a base
-    private static final int BASE = 1 << 20;
-
-//    private static final int BASE = 1024;
+    private static final int BASE = 1 << 30;
 
     private final int[] value;
 
@@ -60,24 +58,26 @@ public class BigNum {
         Queue<Integer> result = new ArrayDeque<>();
 
         int index = 0;
-        int cur = 0;
+
+        // very important: cur should be 'long' here otherwise overflow will happen
+        long cur = 0L;
 
         while (cur < base && index < value.length) {
-            cur = cur * 10 + value[index];
+            cur = cur * 10L + value[index];
             ++index;
         }
 
         if (index == value.length) {
 
             if (cur >= base) {
-                result.add(cur / base);
+                result.add( (int)(cur / base));
                 cur %= base;
             }
 
-            return new DivResult(toIntArray(result), cur);
+            return new DivResult(toIntArray(result), (int)cur);
         }
 
-        result.add(cur / base);
+        result.add((int)(cur / base));
         cur %= base;
 
         for (int i = index; i < value.length; ++i) {
@@ -86,7 +86,7 @@ public class BigNum {
 
             // do division
             if (cur >= base) {
-                result.add(cur / base);
+                result.add( (int)(cur / base));
                 cur %= base;
             }
             else {
@@ -94,7 +94,7 @@ public class BigNum {
             }
         }
 
-        return new DivResult(toIntArray(result), cur);
+        return new DivResult(toIntArray(result), (int)cur);
     }
 
     private static int[] toIntArray(Queue<Integer> queue) {
