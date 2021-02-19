@@ -1,5 +1,6 @@
 package com.max.app.bignum;
 
+import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Queue;
@@ -7,9 +8,9 @@ import java.util.Queue;
 public class BigNum {
 
     // use 2**30 as a base
-//    private static final int BASE = 1 << 30;
+    private static final int BASE = 1 << 20;
 
-    private static final int BASE = 1024;
+//    private static final int BASE = 1024;
 
     private final int[] value;
 
@@ -123,14 +124,12 @@ public class BigNum {
         return res;
     }
 
+    public BigInteger toBigInt() {
+        BigInteger res = BigInteger.ZERO;
+        BigInteger base = BigInteger.valueOf(BASE);
 
-    public int toDecimalValue() {
-        //TODO: do not handle overflow yet, just convert to base 10.
-
-        int res = 0;
-
-        for (int singleDigit : this.value) {
-            res = res * BASE + singleDigit;
+        for (int singleDigit : value) {
+            res = res.multiply(base).add(BigInteger.valueOf(singleDigit));
         }
 
         return res;
@@ -138,7 +137,7 @@ public class BigNum {
 
     @Override
     public String toString() {
-        return "value: " + toDecimalValue();
+        return toBigInt().toString();
     }
 
 }
