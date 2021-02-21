@@ -13,10 +13,9 @@ import java.util.Queue;
 public class BigNum {
 
     // use 2**30 as a base
-    private static final int BASE = 1 << 30;
-
     private static final int BASE_SHIFT = 30;
-    private static final int BASE_MASK = (1 << 30 - 1);
+    private static final int BASE = 1 << BASE_SHIFT;
+    private static final int BASE_MASK = BASE - 1;
 
     private final int[] digits;
 
@@ -93,7 +92,6 @@ public class BigNum {
 
     /**
      * @param value - decimal value passed using big endian order (most significant digit first).
-     * @param base  - base to convert value
      * @return DivResult record with:
      * 'result' - big endian(MSD first) array of 'value' representation in 'base'
      * 'remain' - remainder after division
@@ -117,15 +115,15 @@ public class BigNum {
         if (index == value.length) {
 
             if (cur >= BASE) {
-                result.add((int) (cur / BASE));
-                cur %= BASE;
+                result.add((int) (cur >>> BASE_SHIFT));
+                cur &= BASE_MASK;
             }
 
             return new DivResult(toIntArray(result), (int) cur);
         }
 
-        result.add((int) (cur / BASE));
-        cur %= BASE;
+        result.add((int) (cur >>> BASE_SHIFT));
+        cur &= BASE_MASK;
 
         for (int i = index; i < value.length; ++i) {
 
@@ -133,8 +131,8 @@ public class BigNum {
 
             // do division
             if (cur >= BASE) {
-                result.add((int) (cur / BASE));
-                cur %= BASE;
+                result.add((int) (cur >>> BASE_SHIFT));
+                cur &= BASE_MASK;
             }
             else {
                 result.add(0);
@@ -236,12 +234,12 @@ public class BigNum {
 
             long digitsSum = d1 + d2 + carry;
 
-            result.push((int) (digitsSum % BASE));
-            carry = digitsSum / BASE;
+            result.push((int) (digitsSum & BASE_MASK));
+            carry = digitsSum >>> BASE_SHIFT;
         }
 
         if (carry > 0L) {
-            result.push((int) (carry % BASE));
+            result.push((int) (carry & BASE_MASK));
         }
 
         return toIntArray(result);
