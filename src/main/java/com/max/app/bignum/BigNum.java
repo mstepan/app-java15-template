@@ -2,6 +2,7 @@ package com.max.app.bignum;
 
 import java.math.BigInteger;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.Objects;
 import java.util.Queue;
@@ -202,18 +203,86 @@ public class BigNum {
         }
         // case-2: (+x) + (-y) => |x| - |y|
         else if (isPositive() && other.isNegative()) {
-            //TODO:
-            return null;
+
+            int cmp = this.cmp(other);
+
+            // |x| > |y|
+            if (cmp >= 0) {
+                return new BigNum(1, subAbs(this.digits, other.digits));
+            }
+            // |x| < |y|, swap two number and change sign
+            else {
+                return new BigNum(-1, subAbs(other.digits, this.digits));
+            }
         }
         // case-3: (-x) + (+y) => |y| - |x|
         else if (isNegative() && other.isPositive()) {
-            //TODO:
-            return null;
+
+            int cmp = other.cmp(this);
+
+            // |y| >= 'x'
+            if (cmp >= 0) {
+                return new BigNum(1, subAbs(other.digits, this.digits));
+            }
+            // |y| < |x|, so swap two number and change sign
+            else {
+                return new BigNum(-1, subAbs(this.digits, other.digits));
+            }
         }
 
         // case-4: (-x) + (-y) => -(|x| + |y|)
         return new BigNum(-1, addAbs(this.digits, other.digits));
     }
+
+    /**
+     * Important invariant that always holds: |first| >= |second|
+     */
+    private static int[] subAbs(int[] first, int[] second) {
+
+        //TODO: use grade school subtraction with borrowing if needed
+
+        return null;
+    }
+
+    public int cmp(BigNum other) {
+
+        // this.isZero() case
+        if (isZero()) {
+            return (other.isZero() ? 0 : (other.isPositive() ? -1 : 1));
+        }
+
+        // other.isZero() case
+        if (other.isZero()) {
+            return isPositive() ? 1 : -1;
+        }
+
+        if (isPositive()) {
+            return other.isPositive() ? cmpAbsValues(this.digits, other.digits) : 1;
+        }
+        else {
+            return other.isNegative() ? -cmpAbsValues(this.digits, other.digits) : -1;
+        }
+    }
+
+    /**
+     * Compare absolute values of arrays.
+     */
+    private static int cmpAbsValues(int[] first, int[] second) {
+
+        // first bigger, more digits
+        if (first.length > second.length) {
+            return 1;
+        }
+
+        // second bigger
+        if (second.length > first.length) {
+            return -1;
+        }
+
+        // first.length == second.length, compare digit by digit
+        return Arrays.compare(first, second);
+    }
+
 
     /**
      * Add absolute values.

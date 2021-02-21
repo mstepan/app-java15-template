@@ -1,6 +1,5 @@
 package com.max.app.bignum;
 
-import lombok.ToString;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
@@ -15,11 +14,36 @@ public class BigNumTest {
     private static final Random RAND = new Random();
 
     @Test
-    public void test1(){
-        // 1152921509975556099
-        BigNum value = new BigNum("1152921509975556099");
+    public void checkComparison() {
 
-        int x =133;
+        BigNum x = new BigNum("2152921509975556099");
+        BigNum y = new BigNum("1152921509975556099");
+        assertThat(x.cmp(y)).isEqualTo(1);
+
+        x = new BigNum("2921509975556099");
+        y = new BigNum("1152921509975556099");
+        assertThat(x.cmp(y)).isEqualTo(-1);
+
+        x = new BigNum("34556152921509975556099");
+        y = new BigNum("1152921509975556099");
+        assertThat(x.cmp(y)).isEqualTo(1);
+
+        x = new BigNum("-2152921509975556099");
+        y = new BigNum("1152921509975556099");
+        assertThat(x.cmp(y)).isEqualTo(-1);
+
+        x = new BigNum("2921509975556099");
+        y = new BigNum("-1152921509975556099");
+        assertThat(x.cmp(y)).isEqualTo(1);
+
+        x = new BigNum("-5152921509975556099");
+        y = new BigNum("-1152921509975556099");
+        assertThat(x.cmp(y)).isEqualTo(-1);
+
+        x = new BigNum("-5152921509975556099");
+        y = new BigNum("-9152921509975556099");
+        assertThat(x.cmp(y)).isEqualTo(1);
+
     }
 
     @Test
