@@ -14,6 +14,77 @@ public class BigNumTest {
     private static final Random RAND = new Random();
 
     @Test
+    public void addRandomPositiveValues() {
+
+        for (int it = 0; it < 1000; ++it) {
+            BigNum first = new BigNum(createRandomNumberString(5 + RAND.nextInt(100)));
+            BigNum second = new BigNum(createRandomNumberString(3 + RAND.nextInt(100)));
+
+            BigNum sum = first.add(second);
+
+            assertThat(sum.toBigInt()).isEqualTo(addBigIntegers(first.toBigInt(), second.toBigInt()));
+        }
+    }
+
+    @Test
+    public void addRandomNegativeValues() {
+
+        for (int it = 0; it < 1000; ++it) {
+            BigNum first = new BigNum("-" + createRandomNumberString(5 + RAND.nextInt(100)));
+            BigNum second = new BigNum("-" + createRandomNumberString(3 + RAND.nextInt(100)));
+
+            BigNum sum = first.add(second);
+
+            assertThat(sum.toBigInt()).isEqualTo(addBigIntegers(first.toBigInt(), second.toBigInt()));
+        }
+    }
+
+    @Test
+    public void addZeroToRandomValue() {
+
+        for (int it = 0; it < 1000; ++it) {
+
+            BigNum first;
+            BigNum second;
+
+            if (RAND.nextBoolean()) {
+                first = new BigNum("0");
+                second = new BigNum(createRandomNumberString(3 + RAND.nextInt(100)));
+            }
+            else {
+                first = new BigNum(createRandomNumberString(3 + RAND.nextInt(100)));
+                second = new BigNum("0");
+            }
+
+            BigNum sum = first.add(second);
+
+            assertThat(sum.toBigInt()).isEqualTo(addBigIntegers(first.toBigInt(), second.toBigInt()));
+        }
+    }
+
+    private static BigInteger addBigIntegers(BigInteger first, BigInteger second) {
+        return first.add(second);
+    }
+
+    @Test
+    public void createZero() {
+        BigNum zero = new BigNum("0");
+        assertThat(zero.toBigInt()).isEqualTo(BigInteger.ZERO);
+    }
+
+    @Test
+    public void createPositiveZero() {
+        BigNum zero = new BigNum("+0");
+        assertThat(zero.toBigInt()).isEqualTo(BigInteger.ZERO);
+    }
+
+    @Test
+    public void createNegativeZero() {
+        BigNum zero = new BigNum("-0");
+        assertThat(zero.toBigInt()).isEqualTo(BigInteger.ZERO);
+    }
+
+    @Test
     public void createFromInt() {
         for (int it = 0; it < 1_000; ++it) {
             int randValue = RAND.nextInt();

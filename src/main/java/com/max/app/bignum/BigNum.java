@@ -6,28 +6,51 @@ import java.util.Deque;
 import java.util.Objects;
 import java.util.Queue;
 
+/**
+ * Represents arbitrary precision numbers using array of integer in big
+ * endian order (most significant digit first). As a base 2**30 is used.
+ */
 public class BigNum {
 
     // use 2**30 as a base
     private static final int BASE = 1 << 30;
 
+
     private final int[] digits;
 
-    // for positive values sign = 1, for negative = -1
+    // for positive values, sign = 1,
+    // for negative, sign = -1,
+    // for '0', sign = 0
     private final int sign;
 
     public BigNum(String decimalValue) {
 
-        final String decimalStr = Objects.requireNonNull(decimalValue).trim();
+        String normalized = Objects.requireNonNull(decimalValue).trim();
 
-        if (decimalStr.startsWith("-")) {
-            this.digits = convertToBase(toIntArray(decimalValue.substring(1)));
+        if (isZeroStringRepresentation(normalized)) {
+            this.sign = 0;
+            this.digits = new int[0];
+        }
+        else if (beginsWith(normalized, "-")) {
             this.sign = -1;
+            this.digits = convertToBase(toIntArray(normalized.substring(1)));
+        }
+        else if (beginsWith(normalized, "+")) {
+            this.sign = 1;
+            this.digits = convertToBase(toIntArray(normalized.substring(1)));
         }
         else {
-            this.digits = convertToBase(toIntArray(decimalValue));
             this.sign = 1;
+            this.digits = convertToBase(toIntArray(normalized));
         }
+    }
+
+    private static boolean beginsWith(String str, String prefix) {
+        return str.startsWith(prefix);
+    }
+
+    private static boolean isZeroStringRepresentation(String str) {
+        return "0".equals(str) || "-0".equals(str) || "+0".equals(str);
     }
 
     public BigNum(int intValue) {
@@ -36,6 +59,11 @@ public class BigNum {
 
     public BigNum(long longValue) {
         this(String.valueOf(longValue));
+    }
+
+    private BigNum(int sign, int[] digits) {
+        this.sign = sign;
+        this.digits = digits;
     }
 
     private int[] convertToBase(int[] decimalDigits) {
@@ -115,12 +143,32 @@ public class BigNum {
         return new DivResult(toIntArray(result), (int) cur);
     }
 
+    /**
+     * Converts Queue<Integer> in big endian order to array of int[]
+     * with the same order (most significant digit first).
+     */
     private static int[] toIntArray(Queue<Integer> queue) {
         int[] res = new int[queue.size()];
 
         int i = 0;
         for (int singleValue : queue) {
             res[i] = singleValue;
+            ++i;
+        }
+        return res;
+    }
+
+    /**
+     * Converts stack of integers in big endian order (Deque<Integer>) to an array of int[]
+     * with the same order (most significant digit first).
+     */
+    private static int[] toIntArray(Deque<Integer> stack) {
+        int[] res = new int[stack.size()];
+
+        int i = 0;
+
+        while (!stack.isEmpty()) {
+            res[i] = stack.pop();
             ++i;
         }
         return res;
@@ -142,7 +190,83 @@ public class BigNum {
         return res;
     }
 
+    public BigNum add(BigNum other) {
+
+        // handle zero as a corner case
+        if (isZero() || other.isZero()) {
+            return isZero() ? other : this;
+        }
+
+        // case-1: (+x) + (+y) => |x| + |y|
+        if (isPositive() && other.isPositive()) {
+            return new BigNum(1, addAbs(this.digits, other.digits));
+        }
+        // case-2: (+x) + (-y) => |x| - |y|
+        else if (isPositive() && other.isNegative()) {
+            //TODO:
+            return null;
+        }
+        // case-3: (-x) + (+y) => |y| - |x|
+        else if (isNegative() && other.isPositive()) {
+            //TODO:
+            return null;
+        }
+
+        // case-4: (-x) + (-y) => -(|x| + |y|)
+        return new BigNum(-1, addAbs(this.digits, other.digits));
+    }
+
+    /**
+     * Add absolute values.
+     */
+    private int[] addAbs(int[] first, int[] second) {
+
+        int i = first.length - 1;
+        int j = second.length - 1;
+
+        Deque<Integer> result = new ArrayDeque<>();
+        long carry = 0L;
+
+        while (i >= 0 || j >= 0) {
+            long d1 = (i >= 0) ? first[i] : 0L;
+            long d2 = (j >= 0) ? second[j] : 0L;
+            --i;
+            --j;
+
+            long digitsSum = d1 + d2 + carry;
+
+            result.push((int) (digitsSum % BASE));
+            carry = digitsSum / BASE;
+        }
+
+        if (carry > 0L) {
+            result.push((int) (carry % BASE));
+        }
+
+        return toIntArray(result);
+    }
+
+    public boolean isPositive() {
+        return sign == 1;
+    }
+
+    public boolean isNegative() {
+        return sign == -1;
+    }
+
+    public boolean isZero() {
+        return sign == 0;
+    }
+
+    /**
+     * Use Horner's rule to convert number from base=2**30 to base = 10.
+     */
     public BigInteger toBigInt() {
+
+        if (sign == 0) {
+            return BigInteger.ZERO;
+        }
+
         BigInteger res = BigInteger.ZERO;
         BigInteger base = BigInteger.valueOf(BASE);
 
