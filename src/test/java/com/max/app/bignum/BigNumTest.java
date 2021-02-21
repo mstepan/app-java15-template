@@ -1,5 +1,6 @@
 package com.max.app.bignum;
 
+import lombok.ToString;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
@@ -12,6 +13,14 @@ public class BigNumTest {
     private static final int NUMBERS_RANGE = '9' - '0' + 1;
 
     private static final Random RAND = new Random();
+
+    @Test
+    public void test1(){
+        // 1152921509975556099
+        BigNum value = new BigNum("1152921509975556099");
+
+        int x =133;
+    }
 
     @Test
     public void addRandomPositiveValues() {

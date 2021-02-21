@@ -7,14 +7,16 @@ import java.util.Objects;
 import java.util.Queue;
 
 /**
- * Represents arbitrary precision numbers using array of integer in big
- * endian order (most significant digit first). As a base 2**30 is used.
+ * Represents arbitrary precision numbers using array of integer in big-endian
+ * order (most significant digit first). As a base we use 2**30.
  */
 public class BigNum {
 
     // use 2**30 as a base
     private static final int BASE = 1 << 30;
 
+    private static final int BASE_SHIFT = 30;
+    private static final int BASE_MASK = (1 << 30 - 1);
 
     private final int[] digits;
 
@@ -74,7 +76,7 @@ public class BigNum {
 
         while (cur.length != 0) {
 
-            DivResult res = divideDecimalForBase(cur, BASE);
+            DivResult res = divideDecimalForBase(cur);
 
             resDigits.push(res.remain());
             cur = res.result();
@@ -96,10 +98,9 @@ public class BigNum {
      * 'result' - big endian(MSD first) array of 'value' representation in 'base'
      * 'remain' - remainder after division
      */
-    public static DivResult divideDecimalForBase(int[] value, int base) {
+    public static DivResult divideDecimalForBase(int[] value) {
 
         assert value != null : "null 'value' detected";
-        assert base > 0 : "negative of zero 'base' detected: " + base;
 
         Queue<Integer> result = new ArrayDeque<>();
 
@@ -108,32 +109,32 @@ public class BigNum {
         // very important: cur should be 'long' here otherwise overflow will happen
         long cur = 0L;
 
-        while (cur < base && index < value.length) {
+        while (cur < BASE && index < value.length) {
             cur = cur * 10L + value[index];
             ++index;
         }
 
         if (index == value.length) {
 
-            if (cur >= base) {
-                result.add((int) (cur / base));
-                cur %= base;
+            if (cur >= BASE) {
+                result.add((int) (cur / BASE));
+                cur %= BASE;
             }
 
             return new DivResult(toIntArray(result), (int) cur);
         }
 
-        result.add((int) (cur / base));
-        cur %= base;
+        result.add((int) (cur / BASE));
+        cur %= BASE;
 
         for (int i = index; i < value.length; ++i) {
 
             cur = cur * 10 + value[i];
 
             // do division
-            if (cur >= base) {
-                result.add((int) (cur / base));
-                cur %= base;
+            if (cur >= BASE) {
+                result.add((int) (cur / BASE));
+                cur %= BASE;
             }
             else {
                 result.add(0);
