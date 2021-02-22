@@ -196,6 +196,9 @@ public class BigNum {
         return res;
     }
 
+    /**
+     * Subtract two numbers.
+     */
     public BigNum sub(BigNum other) {
 
         /*
