@@ -269,7 +269,7 @@ public class BigNum {
                 }
 
                 first[index] -= 1;
-                index -= 1;
+                index += 1;
 
                 while (index < i) {
                     first[index] = BASE_MASK;

@@ -1,6 +1,5 @@
 package com.max.app.bignum;
 
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
@@ -13,6 +12,22 @@ public class BigNumTest {
     private static final int NUMBERS_RANGE = '9' - '0' + 1;
 
     private static final Random RAND = new Random();
+
+//    @Test
+//    public void test123() {
+//        BigNum first =
+//                new BigNum
+//               ("125379294290042010653340352469359972299657416718126393366087281868076370408568694633010512382615");
+//        BigNum second =
+//                new BigNum("-5380619368869818099777344962590138365660376222643867468635475812304222376482591177868");
+//
+//        BigNum sum = first.add(second);
+//
+//        assertThat(sum.toBigInt()).isEqualTo(addBigIntegers(first.toBigInt(), second.toBigInt()));
+//
+//        // actual   => 125379294284661391284472017060426043764665417571192802166930546501644694449420103347099101974027
+//        // expected => 125379294284661391284470534369582627337067278352466017143443414399440894596264472256527921204747
+//    }
 
     @Test
     public void addPositiveWithNegative() {
@@ -44,22 +59,37 @@ public class BigNumTest {
     }
 
     @Test
-    @RepeatedTest(100)
-    public void addRandomNegativeAndPositiveValues() {
+    public void addRandomPositiveAndNegativeValues() {
 
-//        for (int it = 0; it < 1000; ++it) {
+        for (int it = 0; it < 10_000; ++it) {
 
-            String firstSign = RAND.nextBoolean() ? "" : "-";
-            BigNum first = new BigNum(firstSign + createRandomNumberString(5 + RAND.nextInt(100)));
+            BigNum first = new BigNum(createRandomNumberString(5 + RAND.nextInt(100)));
 
-            String secondSign = RAND.nextBoolean() ? "" : "-";
-            BigNum second = new BigNum(secondSign + createRandomNumberString(3 + RAND.nextInt(100)));
+            BigNum second = new BigNum("-" + createRandomNumberString(3 + RAND.nextInt(100)));
 
             BigNum sum = first.add(second);
 
             assertThat(sum.toBigInt()).
+                    as(String.format("first: %s, second: %s", first.toString(), second.toString())).
                     isEqualTo(addBigIntegers(first.toBigInt(), second.toBigInt()));
-//        }
+        }
+    }
+
+    @Test
+    public void addRandomNegativeAndPositiveValues() {
+
+        for (int it = 0; it < 10_000; ++it) {
+
+            BigNum first = new BigNum("-" + createRandomNumberString(5 + RAND.nextInt(100)));
+
+            BigNum second = new BigNum(createRandomNumberString(3 + RAND.nextInt(100)));
+
+            BigNum sum = first.add(second);
+
+            assertThat(sum.toBigInt()).
+                    as(String.format("first: %s, second: %s", first.toString(), second.toString())).
+                    isEqualTo(addBigIntegers(first.toBigInt(), second.toBigInt()));
+        }
     }
 
 
