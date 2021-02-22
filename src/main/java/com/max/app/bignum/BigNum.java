@@ -286,7 +286,7 @@ public class BigNum {
         }
 
         while (i >= 0) {
-            res.push(second[i]);
+            res.push(first[i]);
             --i;
         }
 
