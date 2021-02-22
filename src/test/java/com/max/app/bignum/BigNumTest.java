@@ -30,6 +30,21 @@ public class BigNumTest {
 //    }
 
     @Test
+    public void subRandomValues() {
+
+        for (int it = 0; it < 10_000; ++it) {
+
+            BigNum first = new BigNum((RAND.nextBoolean() ? "" : "-") + createRandomNumberString(5 + RAND.nextInt(100)));
+            BigNum second = new BigNum((RAND.nextBoolean() ? "" : "-") + createRandomNumberString(5 + RAND.nextInt(100)));
+
+            BigNum result = first.sub(second);
+
+            assertThat(result.toBigInt()).isEqualTo(subBigIntegers(first.toBigInt(), second.toBigInt()));
+        }
+    }
+
+
+    @Test
     public void addPositiveWithNegative() {
 
         BigNum first = new BigNum("7646");
@@ -175,10 +190,6 @@ public class BigNumTest {
 
     }
 
-    private static BigInteger addBigIntegers(BigInteger first, BigInteger second) {
-        return first.add(second);
-    }
-
     @Test
     public void createZero() {
         BigNum zero = new BigNum("0");
@@ -238,7 +249,6 @@ public class BigNumTest {
         }
     }
 
-
     private static String createRandomNumberString(int length) {
         char[] arr = new char[length];
 
@@ -248,5 +258,12 @@ public class BigNumTest {
         return new String(arr);
     }
 
+    private static BigInteger addBigIntegers(BigInteger first, BigInteger second) {
+        return first.add(second);
+    }
+
+    private static BigInteger subBigIntegers(BigInteger first, BigInteger second) {
+        return first.subtract(second);
+    }
 
 }

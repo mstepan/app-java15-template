@@ -192,6 +192,57 @@ public class BigNum {
         return res;
     }
 
+    public BigNum sub(BigNum other) {
+
+        /*
+         case-1: both values are positive.
+         x - y = |x| - |y| => |x| - |y|, if x >= y, - (|y| - |x|) otherwise
+         */
+        if (isPositive() && other.isPositive()) {
+            int cmp = cmpAbsValues(this.digits, other.digits);
+
+            // first >= second
+            if (cmp >= 0) {
+                return new BigNum(1, subAbs(this.digits, other.digits));
+            }
+            else {
+                return new BigNum(-1, subAbs(other.digits, this.digits));
+            }
+        }
+
+        /*
+         case-2: 'this' positive, 'other' negative
+         (+x) - (-y) => |x| + |y|
+         */
+        if (isPositive() && other.isNegative()) {
+            return new BigNum(1, addAbs(this.digits, other.digits));
+        }
+
+        /*
+         case-3: 'this' negative, 'other' positive
+         (-x) - (+y) = - (|x| + |y|)
+         */
+        if (isNegative() && other.isPositive()) {
+            return new BigNum(-1, addAbs(this.digits, other.digits));
+        }
+
+        /*
+         case-4: 'this' negative, 'other' negative
+         (-x) - (-y) = -x + y = y - x => |y| - |x| if y >= x, otherwise -(|x| - |y|)
+         */
+        int cmp = cmpAbsValues(other.digits, this.digits);
+
+        // other >= this
+        if (cmp >= 0) {
+            return new BigNum(1, subAbs(other.digits, this.digits));
+        }
+
+        // other < this
+        else {
+            return new BigNum(-1, subAbs(this.digits, other.digits));
+        }
+    }
+
     public BigNum add(BigNum other) {
 
         // handle zero as a corner case
