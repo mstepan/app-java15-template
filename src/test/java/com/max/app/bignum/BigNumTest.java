@@ -13,6 +13,8 @@ public class BigNumTest {
 
     private static final Random RAND = new Random();
 
+    private static final int ITERATIONS_CONT = 10_000;
+
 //    @Test
 //    public void test123() {
 //        BigNum first =
@@ -32,7 +34,7 @@ public class BigNumTest {
     @Test
     public void subRandomValues() {
 
-        for (int it = 0; it < 10_000; ++it) {
+        for (int it = 0; it < ITERATIONS_CONT; ++it) {
 
             BigNum first = new BigNum((RAND.nextBoolean() ? "" : "-") + createRandomNumberString(5 + RAND.nextInt(100)));
             BigNum second = new BigNum((RAND.nextBoolean() ? "" : "-") + createRandomNumberString(5 + RAND.nextInt(100)));
@@ -42,7 +44,6 @@ public class BigNumTest {
             assertThat(result.toBigInt()).isEqualTo(subBigIntegers(first.toBigInt(), second.toBigInt()));
         }
     }
-
 
     @Test
     public void addPositiveWithNegative() {
@@ -76,7 +77,7 @@ public class BigNumTest {
     @Test
     public void addRandomPositiveAndNegativeValues() {
 
-        for (int it = 0; it < 10_000; ++it) {
+        for (int it = 0; it < ITERATIONS_CONT; ++it) {
 
             BigNum first = new BigNum(createRandomNumberString(5 + RAND.nextInt(100)));
 
@@ -93,7 +94,7 @@ public class BigNumTest {
     @Test
     public void addRandomNegativeAndPositiveValues() {
 
-        for (int it = 0; it < 10_000; ++it) {
+        for (int it = 0; it < ITERATIONS_CONT; ++it) {
 
             BigNum first = new BigNum("-" + createRandomNumberString(5 + RAND.nextInt(100)));
 
@@ -111,7 +112,7 @@ public class BigNumTest {
     @Test
     public void addRandomPositiveValues() {
 
-        for (int it = 0; it < 1000; ++it) {
+        for (int it = 0; it < ITERATIONS_CONT; ++it) {
             BigNum first = new BigNum(createRandomNumberString(5 + RAND.nextInt(100)));
             BigNum second = new BigNum(createRandomNumberString(3 + RAND.nextInt(100)));
 
@@ -124,7 +125,7 @@ public class BigNumTest {
     @Test
     public void addRandomNegativeValues() {
 
-        for (int it = 0; it < 1000; ++it) {
+        for (int it = 0; it < ITERATIONS_CONT; ++it) {
             BigNum first = new BigNum("-" + createRandomNumberString(5 + RAND.nextInt(100)));
             BigNum second = new BigNum("-" + createRandomNumberString(3 + RAND.nextInt(100)));
 
@@ -137,7 +138,7 @@ public class BigNumTest {
     @Test
     public void addZeroToRandomValue() {
 
-        for (int it = 0; it < 1000; ++it) {
+        for (int it = 0; it < ITERATIONS_CONT; ++it) {
 
             BigNum first;
             BigNum second;
@@ -210,7 +211,7 @@ public class BigNumTest {
 
     @Test
     public void createFromInt() {
-        for (int it = 0; it < 1_000; ++it) {
+        for (int it = 0; it < ITERATIONS_CONT; ++it) {
             int randValue = RAND.nextInt();
             BigNum bigNum = new BigNum(randValue);
 
@@ -220,7 +221,7 @@ public class BigNumTest {
 
     @Test
     public void createFromLong() {
-        for (int it = 0; it < 1_000; ++it) {
+        for (int it = 0; it < ITERATIONS_CONT; ++it) {
             long randValue = RAND.nextLong();
             BigNum bigNum = new BigNum(randValue);
 
@@ -239,7 +240,7 @@ public class BigNumTest {
 
     @Test
     public void createRandomVeryBigNumbers() {
-        for (int it = 0; it < 1000; ++it) {
+        for (int it = 0; it < ITERATIONS_CONT; ++it) {
             String numberStr = createRandomNumberString(10 + RAND.nextInt(1000));
 
             BigNum num = new BigNum(numberStr);
