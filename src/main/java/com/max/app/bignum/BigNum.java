@@ -16,6 +16,8 @@ public class BigNum {
     // use 2**30 as a base
     private static final int BASE_SHIFT = 30;
     private static final int BASE = 1 << BASE_SHIFT;
+
+    // BASE_MASK or max digit value in BASE
     private static final int BASE_MASK = BASE - 1;
 
     private final int[] digits;
@@ -201,12 +203,13 @@ public class BigNum {
         if (isPositive() && other.isPositive()) {
             return new BigNum(1, addAbs(this.digits, other.digits));
         }
+
         // case-2: (+x) + (-y) => |x| - |y|
         else if (isPositive() && other.isNegative()) {
 
-            int cmp = this.cmp(other);
+            int cmp = cmpAbsValues(this.digits, other.digits);
 
-            // |x| > |y|
+            // |x| >= |y|
             if (cmp >= 0) {
                 return new BigNum(1, subAbs(this.digits, other.digits));
             }
@@ -218,9 +221,9 @@ public class BigNum {
         // case-3: (-x) + (+y) => |y| - |x|
         else if (isNegative() && other.isPositive()) {
 
-            int cmp = other.cmp(this);
+            int cmp = cmpAbsValues(other.digits, this.digits);
 
-            // |y| >= 'x'
+            // |y| >= |x|
             if (cmp >= 0) {
                 return new BigNum(1, subAbs(other.digits, this.digits));
             }
@@ -235,13 +238,59 @@ public class BigNum {
     }
 
     /**
+     * Use grade school subtraction algorithm with borrowing if needed.
+     * <p>
      * Important invariant that always holds: |first| >= |second|
      */
-    private static int[] subAbs(int[] first, int[] second) {
+    private static int[] subAbs(int[] initialFirst, int[] second) {
 
-        //TODO: use grade school subtraction with borrowing if needed
+        // taking into account that we can modify 'initialFirst' array during
+        // subtraction procedure, we need make defensive copy here
+        final int[] first = Arrays.copyOf(initialFirst, initialFirst.length);
 
-        return null;
+        int i = first.length - 1;
+        int j = second.length - 1;
+
+        Deque<Integer> res = new ArrayDeque<>();
+
+        while (j >= 0) {
+
+            int d1 = first[i];
+            int d2 = second[j];
+
+            if (d1 >= d2) {
+                res.push(d1 - d2);
+            }
+            else {
+                int index = i - 1;
+
+                while (first[index] == 0) {
+                    --index;
+                }
+
+                first[index] -= 1;
+                index -= 1;
+
+                while (index < i) {
+                    first[index] = BASE_MASK;
+                    ++index;
+                }
+
+                // overflow is not possible here, because d2 > d1
+                int cur = BASE - d2 + d1;
+                res.push(cur);
+            }
+
+            --i;
+            --j;
+        }
+
+        while (i >= 0) {
+            res.push(second[i]);
+            --i;
+        }
+
+        return toIntArray(res);
     }
 
     public int cmp(BigNum other) {
