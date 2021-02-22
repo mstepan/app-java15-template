@@ -15,6 +15,17 @@ public class BigNumTest {
     private static final Random RAND = new Random();
 
     @Test
+    public void test123() {
+
+        BigNum first = new BigNum("5552275433");
+        BigNum second = new BigNum("-313718");
+
+        BigNum sum = first.add(second);
+
+        assertThat(sum.toBigInt()).isEqualTo(addBigIntegers(first.toBigInt(), second.toBigInt()));
+    }
+
+    @Test
     public void addPositiveWithNegative() {
 
         BigNum first = new BigNum("7646");
@@ -49,9 +60,14 @@ public class BigNumTest {
 
             BigNum sum = first.add(second);
 
-            assertThat(sum.toBigInt()).isEqualTo(addBigIntegers(first.toBigInt(), second.toBigInt()));
+            assertThat(sum.toBigInt()).
+                    isEqualTo(addBigIntegers(first.toBigInt(), second.toBigInt()));
         }
     }
+    /*
+    -554052275433297013575210005297965387357646650186379912249238551661880710948
+    -3137186
+     */
 
 
     @Test
