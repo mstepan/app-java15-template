@@ -8,6 +8,9 @@ import java.util.Objects;
 import java.util.Queue;
 
 /**
+ * All work in this class inspired by the following article:
+ *      https://tenthousandmeters.com/blog/python-behind-the-scenes-8-how-python-integers-work
+ *
  * Represents arbitrary precision numbers using array of integer in big-endian
  * order (most significant digit first). As a base we use 2**30.
  */
@@ -17,8 +20,9 @@ public class BigNum {
     private static final int BASE_SHIFT = 30;
     private static final int BASE = 1 << BASE_SHIFT;
 
-    // BASE_MASK or max digit value in BASE
+    // BASE_MASK == MAX_DIGIT in BASE
     private static final int BASE_MASK = BASE - 1;
+    private static final int MAX_DIGIT = BASE_MASK;
 
     private final int[] digits;
 
@@ -323,7 +327,7 @@ public class BigNum {
                 index += 1;
 
                 while (index < i) {
-                    first[index] = BASE_MASK;
+                    first[index] = MAX_DIGIT;
                     ++index;
                 }
 

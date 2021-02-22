@@ -15,22 +15,6 @@ public class BigNumTest {
 
     private static final int ITERATIONS_CONT = 10_000;
 
-//    @Test
-//    public void test123() {
-//        BigNum first =
-//                new BigNum
-//               ("125379294290042010653340352469359972299657416718126393366087281868076370408568694633010512382615");
-//        BigNum second =
-//                new BigNum("-5380619368869818099777344962590138365660376222643867468635475812304222376482591177868");
-//
-//        BigNum sum = first.add(second);
-//
-//        assertThat(sum.toBigInt()).isEqualTo(addBigIntegers(first.toBigInt(), second.toBigInt()));
-//
-//        // actual   => 125379294284661391284472017060426043764665417571192802166930546501644694449420103347099101974027
-//        // expected => 125379294284661391284470534369582627337067278352466017143443414399440894596264472256527921204747
-//    }
-
     @Test
     public void subRandomValues() {
 
@@ -240,13 +224,12 @@ public class BigNumTest {
 
     @Test
     public void createRandomVeryBigNumbers() {
-        for (int it = 0; it < ITERATIONS_CONT; ++it) {
+        for (int it = 0; it < 100; ++it) {
             String numberStr = createRandomNumberString(10 + RAND.nextInt(1000));
 
             BigNum num = new BigNum(numberStr);
 
             assertThat(num.toBigInt()).isEqualTo(new BigInteger(numberStr));
-
         }
     }
 
