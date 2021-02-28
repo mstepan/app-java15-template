@@ -9,12 +9,14 @@ import java.util.Queue;
 
 /**
  * All work in this class inspired by the following article:
- *      https://tenthousandmeters.com/blog/python-behind-the-scenes-8-how-python-integers-work
- *
+ * https://tenthousandmeters.com/blog/python-behind-the-scenes-8-how-python-integers-work
+ * <p>
  * Represents arbitrary precision numbers using array of integer in big-endian
  * order (most significant digit first). As a base we use 2**30.
  */
 public class BigNum {
+
+    public static BigNum ZERO = new BigNum(0, new int[]{});
 
     // use 2**30 as a base
     private static final int BASE_SHIFT = 30;
@@ -194,6 +196,70 @@ public class BigNum {
         }
 
         return res;
+    }
+
+    /**
+     * Multiply big numbers using grade school algorithm with O(N^2) time complexity.
+     */
+    public BigNum mul(BigNum other) {
+        if (isZero() || other.isZero()) {
+            return BigNum.ZERO;
+        }
+
+        return new BigNum(sign * other.sign, mulAbs(digits, other.digits));
+    }
+
+    /**
+     * Use grade school algorithm to multiply two values.
+     */
+    private static int[] mulAbs(int[] first, int[] second) {
+
+        // swap, if 'first' has smaller number of digits,
+        // so that 'first' is always bigger in terms of digits
+        if (first.length < second.length) {
+            int[] temp = first;
+            first = second;
+            second = temp;
+        }
+
+        assert first.length >= second.length : "first.length < second.length";
+
+        int[] result = {0};
+        int digitsToShift = 0;
+
+        for (int i = second.length - 1; i >= 0; --i, ++digitsToShift) {
+            long secondDigit = second[i];
+
+            long curry = 0L;
+            Deque<Integer> partialStack = shiftedStack(digitsToShift);
+
+            for (int j = first.length - 1; j >= 0; --j) {
+
+                long digitsMul = (((long) first[j]) * secondDigit) + curry;
+
+                partialStack.push((int) (digitsMul % BASE));
+
+                curry = digitsMul / BASE;
+            }
+
+            if (curry != 0L) {
+                partialStack.push((int) (curry));
+            }
+
+            result = addAbs(result, toIntArray(partialStack));
+        }
+
+        return result;
+    }
+
+    private static Deque<Integer> shiftedStack(int shiftLength) {
+        Deque<Integer> stack = new ArrayDeque<>();
+
+        for (int i = 0; i < shiftLength; ++i) {
+            stack.push(0);
+        }
+
+        return stack;
     }
 
     /**
@@ -394,7 +460,7 @@ public class BigNum {
     /**
      * Add absolute values.
      */
-    private int[] addAbs(int[] first, int[] second) {
+    private static int[] addAbs(int[] first, int[] second) {
 
         int i = first.length - 1;
         int j = second.length - 1;

@@ -16,6 +16,20 @@ public class BigNumTest {
     private static final int ITERATIONS_CONT = 10_000;
 
     @Test
+    public void mulRandomValues() {
+
+        for (int it = 0; it < ITERATIONS_CONT; ++it) {
+
+            BigNum first = new BigNum((RAND.nextBoolean() ? "" : "-") + createRandomNumberString(5 + RAND.nextInt(100)));
+            BigNum second = new BigNum((RAND.nextBoolean() ? "" : "-") + createRandomNumberString(5 + RAND.nextInt(100)));
+
+            BigNum result = first.mul(second);
+
+            assertThat(mulBigIntegers(first.toBigInt(), second.toBigInt())).isEqualTo(result.toBigInt());
+        }
+    }
+
+    @Test
     public void subRandomValues() {
 
         for (int it = 0; it < ITERATIONS_CONT; ++it) {
@@ -248,6 +262,10 @@ public class BigNumTest {
 
     private static BigInteger subBigIntegers(BigInteger first, BigInteger second) {
         return first.subtract(second);
+    }
+
+    private static BigInteger mulBigIntegers(BigInteger first, BigInteger second) {
+        return first.multiply(second);
     }
 
 }
