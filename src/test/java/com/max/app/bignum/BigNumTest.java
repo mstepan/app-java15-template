@@ -25,7 +25,7 @@ public class BigNumTest {
 
             BigNum result = first.mul(second);
 
-            assertThat(mulBigIntegers(first.toBigInt(), second.toBigInt())).isEqualTo(result.toBigInt());
+            assertThat(result.toBigInt()).isEqualTo(mulBigIntegers(first.toBigInt(), second.toBigInt()));
         }
     }
 

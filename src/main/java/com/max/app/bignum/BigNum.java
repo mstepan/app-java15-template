@@ -228,7 +228,7 @@ public class BigNum {
         int digitsToShift = 0;
 
         for (int i = second.length - 1; i >= 0; --i, ++digitsToShift) {
-            long secondDigit = second[i];
+            final long secondDigit = second[i];
 
             long curry = 0L;
             Deque<Integer> partialStack = shiftedStack(digitsToShift);
