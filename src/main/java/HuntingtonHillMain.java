@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 /**
- * Huntington-Hill algorithm for US Congress seats allocation.
+ * Huntington-Hill algorithm for United States House of Representatives seats calculation.
  */
 public class HuntingtonHillMain {
 
     public static void main(String[] args) {
-        final int congressSeatsCount = 435;
+        final int totalSeatsCount = 435;
 
-        List<StateSeat> seats = calculateCongressSeats(State.values(), congressSeatsCount);
+        List<StateSeat> seats = calculateSeats(State.values(), totalSeatsCount);
 
         seats.sort(StateSeat.STATE_NAME_CMP_ASC);
 
@@ -21,7 +21,7 @@ public class HuntingtonHillMain {
 
     }
 
-    public static List<StateSeat> calculateCongressSeats(State[] states, int congressSeatsCount) {
+    public static List<StateSeat> calculateSeats(State[] states, int totalSeatsCount) {
         // max queue
         PriorityQueue<StateSeat> queue = new PriorityQueue<>(StateSeat.CONGRESS_WEIGHT_CMP_DESC);
 
@@ -30,7 +30,7 @@ public class HuntingtonHillMain {
             queue.add(new StateSeat(singleState, 1));
         }
 
-        final int leftSeats = congressSeatsCount - states.length;
+        final int leftSeats = totalSeatsCount - states.length;
 
         for (int i = 0; i < leftSeats; ++i) {
             StateSeat curStateSeat = queue.poll();
@@ -60,10 +60,10 @@ public class HuntingtonHillMain {
                 Comparator.comparing(StateSeat::getState);
 
         /**
-         * Calculate Congress weight usign the following formula:
+         * Calculate House of Representatives weight using the following formula:
          *
-         * weight = P / sqrt( r * (r+1)),
-         * where P - state population, r - assigned Congress seats count
+         * weight = P / sqrt( R * (R+1) ),
+         * where P - state population, R - already assigned seats count
          */
         double calculateWeight() {
             return state.population / Math.sqrt(seats * (seats + 1));
