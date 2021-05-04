@@ -1,21 +1,83 @@
 package com.max.app;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public final class Main {
 
     public static void main(String[] args) throws Exception {
 
-        int[] arr = {1, 3, 8, 2, 3, 9, 4, 6, 8, 5, 6};
+        List<List<int[]>> allSolutions = placeQueens();
 
-        // pivot arr[6] = 4;
-        int index = 6;
+        System.out.printf("size = %d%n", allSolutions.size());
 
-        var partitionInfo = ArrayUtils.treeWayPartition(arr, index);
+        for (List<int[]> singleSolution : allSolutions) {
+            System.out.println(buildSolutionStr(singleSolution));
+        }
 
-        System.out.println(partitionInfo.lessBoundary());
-        System.out.println(partitionInfo.eqBoundary());
+        System.out.printf("Main completed...", System.getProperty("java.version"));
+    }
 
-        System.out.printf("Main completed...%njava version: %s%n", System.getProperty("java.version"));
+    private static final int BOARD_SIZE = 8;
+
+    public static List<List<int[]>> placeQueens() {
+
+        List<List<int[]>> allSolutions = new ArrayList<>();
+
+        placeQueensRec(0, new ArrayDeque<>(), new ArrayDeque<>(), new ArrayDeque<>(), new ArrayDeque<>(),
+                       allSolutions);
+
+        return allSolutions;
+
+    }
+
+    private static String buildSolutionStr(List<int[]> solution) {
+        return solution.stream().map(pair -> "(" + pair[0] + ", " + pair[1] + ")").
+                collect(Collectors.joining(";"));
+    }
+
+    private static void placeQueensRec(int row, Deque<Integer> usedCols, Deque<Integer> diagonal,
+                                       Deque<Integer> revDiagonal, Deque<int[]> curSolution,
+                                       List<List<int[]>> allSolutions) {
+
+        if (row == BOARD_SIZE) {
+            allSolutions.add(new ArrayList<>(curSolution));
+            return;
+        }
+
+        for (int col = 0; col < BOARD_SIZE; ++col) {
+            if (usedCols.contains(col) || revDiagonal.contains(col) || diagonal.contains(col)) {
+                continue;
+            }
+
+            curSolution.addLast(new int[]{row, col});
+            usedCols.addLast(col);
+
+            diagonal.addLast(col);
+            revDiagonal.addLast(col);
+
+            placeQueensRec(row + 1, usedCols, incAll(diagonal), decAll(revDiagonal), curSolution, allSolutions);
+
+            revDiagonal.removeLast();
+            diagonal.removeLast();
+
+            usedCols.removeLast();
+            curSolution.removeLast();
+        }
+
+    }
+
+    private static Deque<Integer> incAll(Deque<Integer> data) {
+        return data.stream().map(val -> val + 1).
+                collect(Collectors.toCollection(ArrayDeque::new));
+    }
+
+    private static Deque<Integer> decAll(Deque<Integer> data) {
+        return data.stream().map(val -> val - 1).
+                collect(Collectors.toCollection(ArrayDeque::new));
     }
 
 }
