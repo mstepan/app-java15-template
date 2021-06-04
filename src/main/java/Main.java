@@ -1,65 +1,117 @@
-import java.util.Random;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class Main {
 
-
     public static void main(String[] args) {
 
-        Random rand = new Random();
+        /*
 
-        for (int i = 0; i < 100_000; ++i) {
-            int x = rand.nextInt();
-            int y = rand.nextInt();
+78798081828384858687888990919293   YES 78
 
-            long expected = x * y;
-            long actual = mul(x, y);
+9596979899100101102103104195106 YES 95
 
-            if (expected != actual) {
-                throw new IllegalStateException("Incorrect value for multiplication " +
-                                                        x + " * " + y + " = " + (actual));
-            }
+         */
+        separateNumbers("7879");
+
+        System.out.println("Main done...");
+    }
+
+    public static void separateNumbers(String s) {
+        Optional<BigInteger> maybeSolution = findFirstNumFromSplit(s);
+        if (maybeSolution.isPresent()) {
+            System.out.printf("YES %d%n", maybeSolution.get());
         }
+        else {
+            System.out.println("NO");
+        }
+    }
 
-        System.out.printf("java-%s%n", System.getProperty("java.version"));
+    private static class Prev {
+        private final List<BigInteger> prev = new ArrayList<>();
+        private final List<BigInteger> splitLength = new ArrayList<>();
     }
 
     /**
-     * Peasant multiplication.
-     * <p>
-     * time: O(lgN*M)
-     * space: O(N*M)
+     * time: O(N^2)
+     * space: O(N)
      */
-    private static long mul(int x, int y) {
-        int sign = calcSign(x, y);
+    private static Optional<BigInteger> findFirstNumFromSplit(String str) {
+        int[] arr = toDecimalArr(str);
+        BigInteger[] prev = new BigInteger[arr.length];
+        int[] splitLength = new int[arr.length];
 
-        long first = Math.abs((long) x);
-        long second = Math.abs((long) y);
+        prev[0] = BigInteger.valueOf(arr[0]);
+        splitLength[0] = 1;
 
-        int res = 0;
+        for (int i = 1; i < arr.length; ++i) {
 
-        while (first > 0) {
-            if (isOdd(first)) {
-                res += second;
+            BigInteger mul = BigInteger.ONE;
+            BigInteger cur = BigInteger.ZERO;
+
+            boolean splitPointFound = false;
+
+            int j = i;
+            for (; j > 0; --j) {
+                if (arr[j] == 0) {
+                    mul = mul.multiply(BigInteger.TEN);
+                    continue;
+                }
+                cur = BigInteger.valueOf(arr[j]).multiply(mul).add(cur);
+
+                // split point found
+                if (cur.subtract(prev[j - 1]).equals(BigInteger.ONE)) {
+                    prev[i] = cur;
+                    splitLength[i] = splitLength[j - 1] + 1;
+                    splitPointFound = true;
+                    break;
+                }
+
+                mul = mul.multiply(BigInteger.TEN);
             }
 
-            first >>= 1;
-            second <<= 1;
+            // split not found
+            if (!splitPointFound) {
+                prev[i] = prev[0].multiply(mul).add(cur);
+                splitLength[i] = 1;
+            }
         }
 
-        return (sign == 1) ? res : -res;
+        if (isSplitPossible(splitLength)) {
+            return Optional.of(findFirstNumberFromSplit(prev, splitLength));
+        }
+
+        return Optional.empty();
     }
 
-    private static int calcSign(int x, int y) {
-        return ((x >>> 31) ^ (y >>> 31)) == 0 ? 1 : -1;
+    private static int[] toDecimalArr(String str) {
+
+        final int length = str.length();
+        int[] res = new int[length];
+
+        for (int i = 0; i < length; ++i) {
+            res[i] = str.charAt(i) - '0';
+        }
+
+        return res;
     }
 
-    private static boolean isOdd(long x) {
-        return !isEven(x);
+    private static boolean isSplitPossible(int[] splitLength) {
+        return splitLength[splitLength.length - 1] > 1;
     }
 
-    private static boolean isEven(long x) {
-        return (x & 1) == 0;
-    }
+    private static BigInteger findFirstNumberFromSplit(BigInteger[] prev, int[] splitLength) {
 
+        int index = splitLength.length - 1;
+
+        while (splitLength[index] != 1) {
+            BigInteger cur = prev[index];
+            index -= String.valueOf(cur).length();
+        }
+
+        return prev[index];
+    }
 
 }
