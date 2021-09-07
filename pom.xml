@@ -63,6 +63,12 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>com.oracle.hcgbu</groupId>
+            <artifactId>fhir-api-service</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- Logger -->
         <dependency>
             <groupId>org.slf4j</groupId>
