@@ -1,14 +1,9 @@
-# java 11 template project
+# java 15 template project
 
 
 ## Unit tests.
 
 ```
-mvn clean test
+./mvnw clean test
 ```
 
-## Integration tests
-
-```
-mvn clean test -P integration
-```
