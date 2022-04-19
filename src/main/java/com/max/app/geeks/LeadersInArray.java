@@ -6,22 +6,18 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Given an array A of positive integers. Your task is to find the leaders in the array. An element of array is leader if it
+ * Given an array 'arr' of positive integers. Your task is to find the leaders in the array. An element of array is leader if it
  * is greater than or equal to all the elements to its right side. The rightmost element is always a leader.
  * <p>
- * <p>
- * <p>
- * Example 1:
- * Input:
- * n = 6
- * A[] = {16,17,4,3,5,2}
- * Output: 17 5 2
+ * Example:
+ * Input: int[] arr = {16,17,4,3,5,2}
+ * Output: 17, 5, 2
  */
 public class LeadersInArray {
 
     public static void main(String[] args) {
 
-        int[] arr = {10}; //{16, 17, 4, 3, 5, 2};
+        int[] arr = {16, 17, 4, 3, 5, 2};
         List<Integer> res = leaders(arr);
 
         System.out.println(res);
