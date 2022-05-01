@@ -2,7 +2,6 @@ package com.max.app.hashing;
 
 import java.util.Arrays;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class HashingMain {
 
@@ -26,7 +25,7 @@ public class HashingMain {
 
             int[] freqPerBucket = new int[m];
 
-            for (int singeVal : arrayToHash ) {
+            for (int singeVal : arrayToHash) {
                 int hashBucketIndex = hashFunc.hash(singeVal);
 
                 ++freqPerBucket[hashBucketIndex];
@@ -97,73 +96,6 @@ public class HashingMain {
         return Math.sqrt(deviationVal / arr.length);
     }
 
-    interface UniversalHash {
-        int hash(int value);
-    }
-
-    /**
-     * deviation: 667.1, deviation(%): 0.34
-     */
-    static final class UniversalHashNormal implements UniversalHash {
-
-        private static int BIG_PRIME = 10_000_339;
-
-        private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
-
-        private final int a;
-        private final int b;
-        private final int mod;
-
-        public UniversalHashNormal(int m) {
-            this.a = 1 + RAND.nextInt(BIG_PRIME - 1);
-            this.b = RAND.nextInt(BIG_PRIME);
-            this.mod = m - 1;
-        }
-
-        @Override
-        public int hash(int value) {
-            return ((a * value + b) % BIG_PRIME) & (mod);
-        }
-
-    }
-
-    /**
-     * Super fast universal hash function with very good distribution.
-     * deviation: 3.0, deviation(%): 0.00
-     */
-    static final class UniversalHashFast implements UniversalHash {
-
-        private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
-
-        private static final int INT_BITS = Integer.SIZE;
-        private final int a;
-        private final int mBits;
-
-        public UniversalHashFast(int m) {
-            if (!isPowerOfTwo(m)) {
-                throw new IllegalArgumentException("'m' should be power of 2, but found '" + m + "'");
-            }
-            this.a = randomOddNumber();
-            this.mBits = log2(m);
-        }
-
-        private static boolean isPowerOfTwo(int value) {
-            return (value & (value - 1)) == 0;
-        }
-
-        private int randomOddNumber() {
-            return RAND.nextInt() | 1;
-        }
-
-        @Override
-        public int hash(int value) {
-            return (a * value) >>> (INT_BITS - mBits);
-        }
-
-        int log2(int value) {
-            return (int) (Math.log(value) / Math.log(2.0));
-        }
-    }
 
 }
 
