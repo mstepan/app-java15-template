@@ -1,7 +1,7 @@
 package com.max.app.hashing;
 
-public interface UniversalHash {
+public interface UniversalHash<T> {
 
-    int hash(int value);
+    int hash(T value);
 
 }

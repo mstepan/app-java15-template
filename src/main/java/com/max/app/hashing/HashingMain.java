@@ -21,7 +21,7 @@ public class HashingMain {
         final int m = 1024;
 
         for (int it = 0; it < 10; ++it) {
-            UniversalHash hashFunc = new UniversalHashFast(m);
+            UniversalHash hashFunc = new UniversalHashWithPowerOfTwoCapacityFast(m);
 
             int[] freqPerBucket = new int[m];
 

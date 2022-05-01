@@ -6,7 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Super fast universal hash function with very good distribution.
  * deviation: 3.0, deviation(%): 0.00
  */
-public final class UniversalHashFast implements UniversalHash {
+public final class UniversalHashWithPowerOfTwoCapacityFast<T> implements UniversalHash<T> {
 
     private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
 
@@ -14,7 +14,7 @@ public final class UniversalHashFast implements UniversalHash {
     private final int a;
     private final int mBits;
 
-    public UniversalHashFast(int m) {
+    public UniversalHashWithPowerOfTwoCapacityFast(int m) {
         if (!isPowerOfTwo(m)) {
             throw new IllegalArgumentException("'m' should be power of 2, but found '" + m + "'");
         }
@@ -31,8 +31,8 @@ public final class UniversalHashFast implements UniversalHash {
     }
 
     @Override
-    public int hash(int value) {
-        return (a * value) >>> (INT_BITS - mBits);
+    public int hash(T value) {
+        return (a * value.hashCode()) >>> (INT_BITS - mBits);
     }
 
     int log2(int value) {
