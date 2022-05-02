@@ -11,7 +11,7 @@ public class StaticHashSetTest {
 
     @Test
     public void createAndCallContains() {
-        StaticHashSet<String> set = new StaticHashSet<>(List.of("one", "two", "three"));
+        StaticHashSet<String> set = StaticHashSet.fromList(List.of("one", "two", "three"));
 
         assertTrue(set.contains("one"));
         assertTrue(set.contains("two"));
@@ -30,7 +30,7 @@ public class StaticHashSetTest {
             data.add(i);
         }
 
-        StaticHashSet<Integer> set = new StaticHashSet<>(data);
+        StaticHashSet<Integer> set = StaticHashSet.fromList(data);
 
         for (Integer singleValue : data) {
             assertTrue(set.contains(singleValue));
@@ -39,18 +39,28 @@ public class StaticHashSetTest {
         for (int it = 0; it < 10; ++it) {
             assertFalse(set.contains(boundary + it));
         }
+
+        System.out.printf("total capacity: %d, maxDepth: %d%n", set.calculateUsedCapacity(), set.maxDepth());
+    }
+
+    @Test
+    public void checkWithDuplicateValues() {
+        StaticHashSet<String> set = StaticHashSet.fromList(List.of("one", "two", "one", "two"));
+
+        assertTrue(set.contains("one"));
+        assertTrue(set.contains("two"));
     }
 
     @Test
     public void createWithRandomValues() {
-        final int elementsCount = 1_000_000;
+        final int elementsCount = 100_000;
         List<String> data = new ArrayList<>();
 
         for (int i = 0; i < elementsCount; ++i) {
             data.add(randomAsciiString());
         }
 
-        StaticHashSet<String> set = new StaticHashSet<>(data);
+        StaticHashSet<String> set = StaticHashSet.fromList(data);
 
         for (String addedValue : data) {
             assertTrue(set.contains(addedValue));
@@ -60,7 +70,7 @@ public class StaticHashSetTest {
             assertFalse(set.contains(randomAsciiString()));
         }
 
-        System.out.printf("total capacity: %d%n", set.calculateUsedCapacity());
+        System.out.printf("total capacity: %d, maxDepth: %d%n", set.calculateUsedCapacity(), set.maxDepth());
     }
 
     private static final Random RAND = new Random();

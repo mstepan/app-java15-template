@@ -1,8 +1,10 @@
 package com.max.app.hashing;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Perfect hashing is a data structure of linear expected size, whose expected worst-case search time is constant.
@@ -17,24 +19,26 @@ import java.util.Objects;
  */
 public class StaticHashSet<T> {
 
+    private static int maxDepth = 0;
+
     private final int capacity;
 
     private final DataNode<T>[] table;
 
     private final UniversalHashRegular<T> hashFunction;
 
-    public StaticHashSet(List<T> values) {
-        // top level hashtable capacity, should be equal to elements count, so capacity = list.size()
-        this(values, values.size());
+    public static <U> StaticHashSet<U> fromList(List<U> values){
+        Set<U> uniqueValues = new HashSet<>(values);
+        return new StaticHashSet<>(new ArrayList<>(uniqueValues), uniqueValues.size(), 0);
     }
 
     @SuppressWarnings("unchecked")
-    private StaticHashSet(List<T> values, int capacity) {
+    private StaticHashSet(List<T> values, int capacity, int depth) {
         Objects.requireNonNull(values);
         this.capacity = capacity;
         this.table = new DataNode[capacity];
         this.hashFunction = new UniversalHashRegular<>(capacity);
-        addValues(values);
+        addValues(values, depth);
     }
 
     /**
@@ -52,6 +56,10 @@ public class StaticHashSet<T> {
         return totalCapacity;
     }
 
+    int maxDepth() {
+        return maxDepth;
+    }
+
     public boolean contains(T value) {
         Objects.requireNonNull(value);
 
@@ -62,7 +70,14 @@ public class StaticHashSet<T> {
         return bucket != null && bucket.contains(value);
     }
 
-    private void addValues(List<T> values) {
+    private void addValues(List<T> values, int depth) {
+
+        maxDepth = Math.max(maxDepth, depth);
+//        System.out.printf("depth: %d%n", depth);
+
+        if (depth > 1000) {
+            int x = 133;
+        }
 
         @SuppressWarnings("unchecked")
         TempNode<T>[] tempNodes = new TempNode[this.capacity];
@@ -70,6 +85,11 @@ public class StaticHashSet<T> {
         for (T singleValue : values) {
             Objects.requireNonNull(singleValue, "Can't store null value.");
             int bucketIndex = hashFunction.hash(singleValue);
+            /*
+            uvlpavrmxjafkhxubpqijsvgzbehyzdimizmkdbvqdyzgebckcfoldrpjnpwaeqquftbpzhpv
+            ljcjdvcgwgteznpofsmneylzyotdpxswlbjhhonxvbdxcfyewddk
+            a=9882440 b=7616541 mod=8
+             */
 
             if (tempNodes[bucketIndex] == null) {
                 tempNodes[bucketIndex] = new TempNode<>(singleValue);
@@ -83,7 +103,7 @@ public class StaticHashSet<T> {
 
         for (int i = 0; i < tempNodes.length; ++i) {
             TempNode<T> cur = tempNodes[i];
-            table[i] = (cur == null) ? null : cur.toDataNode();
+            table[i] = (cur == null) ? null : cur.toDataNode(depth + 1);
         }
     }
 
@@ -98,10 +118,10 @@ public class StaticHashSet<T> {
             this.value = value;
         }
 
-        public DataNode(List<U> list) {
+        public DataNode(List<U> list, int depth) {
             // internal capacity should be 2 * freq[i] * freq[i]
             int internalHashCapacity = list.size() * list.size() * 2;
-            this.hashtable = new StaticHashSet<>(list, internalHashCapacity);
+            this.hashtable = new StaticHashSet<>(list, internalHashCapacity, depth);
         }
 
         boolean contains(U valueToSearch) {
@@ -125,11 +145,11 @@ public class StaticHashSet<T> {
             list.add(value);
         }
 
-        DataNode<U> toDataNode() {
+        DataNode<U> toDataNode(int depth) {
             if (list.size() == 1) {
                 return new DataNode<>(list.get(0));
             }
-            return new DataNode<>(list);
+            return new DataNode<>(list, depth);
         }
 
     }

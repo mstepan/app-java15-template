@@ -15,10 +15,16 @@ public final class UniversalHashRegular<T> implements UniversalHash<T> {
     private final int b;
     private final int mod;
 
-    public UniversalHashRegular(int m) {
+    public UniversalHashRegular(int capacity) {
         this.a = 1 + RAND.nextInt(BIG_PRIME - 1);
         this.b = RAND.nextInt(BIG_PRIME);
-        this.mod = m - 1;
+        this.mod = capacity;
+    }
+
+    public UniversalHashRegular(int a, int b, int mod) {
+        this.a = a;
+        this.b = b;
+        this.mod = mod;
     }
 
     @Override
