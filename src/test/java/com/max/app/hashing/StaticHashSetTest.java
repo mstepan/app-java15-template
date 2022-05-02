@@ -53,7 +53,7 @@ public class StaticHashSetTest {
 
     @Test
     public void createWithRandomValues() {
-        final int elementsCount = 100_000;
+        final int elementsCount = 10_000;
         List<String> data = new ArrayList<>();
 
         for (int i = 0; i < elementsCount; ++i) {

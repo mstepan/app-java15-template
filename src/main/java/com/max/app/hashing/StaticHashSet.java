@@ -27,7 +27,7 @@ public class StaticHashSet<T> {
 
     private final UniversalHashRegular<T> hashFunction;
 
-    public static <U> StaticHashSet<U> fromList(List<U> values){
+    public static <U> StaticHashSet<U> fromList(List<U> values) {
         Set<U> uniqueValues = new HashSet<>(values);
         return new StaticHashSet<>(new ArrayList<>(uniqueValues), uniqueValues.size(), 0);
     }
@@ -73,30 +73,36 @@ public class StaticHashSet<T> {
     private void addValues(List<T> values, int depth) {
 
         maxDepth = Math.max(maxDepth, depth);
-//        System.out.printf("depth: %d%n", depth);
-
-        if (depth > 1000) {
-            int x = 133;
-        }
 
         @SuppressWarnings("unchecked")
         TempNode<T>[] tempNodes = new TempNode[this.capacity];
 
+        int createdBucketsCount = 0;
+        TempNode<T> lastBucketValue = null;
+        int lastIndex = -1;
+
         for (T singleValue : values) {
             Objects.requireNonNull(singleValue, "Can't store null value.");
             int bucketIndex = hashFunction.hash(singleValue);
-            /*
-            uvlpavrmxjafkhxubpqijsvgzbehyzdimizmkdbvqdyzgebckcfoldrpjnpwaeqquftbpzhpv
-            ljcjdvcgwgteznpofsmneylzyotdpxswlbjhhonxvbdxcfyewddk
-            a=9882440 b=7616541 mod=8
-             */
 
             if (tempNodes[bucketIndex] == null) {
                 tempNodes[bucketIndex] = new TempNode<>(singleValue);
+
+                ++createdBucketsCount;
+                lastBucketValue = tempNodes[bucketIndex];
+                lastIndex = bucketIndex;
             }
             else {
                 tempNodes[bucketIndex].add(singleValue);
             }
+        }
+
+        // handle special case, when all values hashed to the same bucket
+        if (createdBucketsCount == 1) {
+            assert lastBucketValue != null;
+            assert lastIndex >= 0 && lastIndex < table.length;
+            table[lastIndex] = lastBucketValue.toOrdinarySet();
+            return;
         }
 
         assert tempNodes.length == table.length;
@@ -113,9 +119,14 @@ public class StaticHashSet<T> {
 
         U value;
         StaticHashSet<U> hashtable;
+        Set<U> set;
 
         DataNode(U value) {
             this.value = value;
+        }
+
+        DataNode(Set<U> set) {
+            this.set = set;
         }
 
         public DataNode(List<U> list, int depth) {
@@ -128,8 +139,10 @@ public class StaticHashSet<T> {
             if (value != null) {
                 return value.equals(valueToSearch);
             }
-
-            return hashtable.contains(valueToSearch);
+            else if (hashtable != null) {
+                return hashtable.contains(valueToSearch);
+            }
+            return set.contains(valueToSearch);
         }
     }
 
@@ -143,6 +156,10 @@ public class StaticHashSet<T> {
         void add(U value) {
             assert list != null : "null list reference detected";
             list.add(value);
+        }
+
+        DataNode<U> toOrdinarySet() {
+            return new DataNode<>(new HashSet<>(list));
         }
 
         DataNode<U> toDataNode(int depth) {
