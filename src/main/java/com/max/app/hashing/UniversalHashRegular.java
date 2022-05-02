@@ -7,7 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public final class UniversalHashRegular<T> implements UniversalHash<T> {
 
-    private static int BIG_PRIME = 10_000_339;
+    private static final int BIG_PRIME = 10_000_339;
 
     private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
 
